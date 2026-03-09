@@ -1,0 +1,143 @@
+{
+  "meta": {
+    "title": "PlanningPub - MICE Platformer",
+    "description": "A new paradigm in the MICE industry, crafted by PlanningPub."
+  },
+  "nav": {
+    "about": "About Us",
+    "portfolio": "Portfolio",
+    "contact": "Contact",
+    "planninghub": "PlanningHUB",
+    "inquiry": "Inquiry"
+  },
+  "hero": {
+    "badge": "MICE Platformer",
+    "title1": "Plan? Easy.",
+    "title2": "WE MAKE IT!",
+    "subtitle": "From planning to operations and data analytics — we connect everything in the MICE industry through our platform.",
+    "cta": "Start a Project",
+    "learnMore": "Learn More"
+  },
+  "micePlatformer": {
+    "label": "WHY PLANNINGPUB",
+    "title": "Everything MICE, One Platform",
+    "subtitle": "Beyond a simple agency — a Platformer leading the digital transformation of the MICE industry.",
+    "cards": {
+      "platform": {
+        "title": "Platform-based Planning",
+        "desc": "Maximize event planning efficiency with AI-powered OneShotPlan."
+      },
+      "communication": {
+        "title": "Attendee Communication",
+        "desc": "Manage all attendee communications in one place with COCONUT."
+      },
+      "archive": {
+        "title": "Data Archiving",
+        "desc": "Systematically store and reuse event materials and data."
+      },
+      "data": {
+        "title": "Data-driven Management",
+        "desc": "Support data-driven decisions with AttenDB and EstiMATE."
+      }
+    }
+  },
+  "services": {
+    "label": "SERVICES",
+    "title": "What We Do",
+    "subtitle": "A to Z in the MICE industry — PlanningPub is with you."
+  },
+  "portfolioPreview": {
+    "label": "PORTFOLIO",
+    "title": "Featured Projects",
+    "viewAll": "View All"
+  },
+  "cta": {
+    "title": "Ready for your\nnext project?",
+    "subtitle": "Our team of MICE experts will lead your project to success.",
+    "button": "Start a Project"
+  },
+  "about": {
+    "label": "ABOUT US",
+    "title": "MICE Platformer,\nPlanningPub",
+    "intro": "Since its founding in 2015, PlanningPub has been driving digital innovation in the MICE (Meeting, Incentive, Convention, Exhibition) industry. Going beyond simple event management, we have positioned ourselves as a MICE Platformer that integrates planning, operations, and data analytics through our proprietary platform, PlanningHUB.",
+    "mission": {
+      "label": "MISSION",
+      "title": "Our Mission",
+      "desc": "Leading the digital transformation of the MICE industry to build an ecosystem where anyone can plan and manage events easily and efficiently."
+    },
+    "vision": {
+      "label": "VISION",
+      "title": "Our Vision",
+      "desc": "Becoming Asia's No.1 MICE Platform Company and an essential partner for event planners worldwide."
+    },
+    "crew": {
+      "label": "OUR CREW",
+      "title": "Meet the Team"
+    },
+    "certification": {
+      "label": "CERTIFICATIONS & PARTNERS",
+      "title": "Certifications & Partners"
+    }
+  },
+  "portfolio": {
+    "label": "PORTFOLIO",
+    "title": "Our Work",
+    "all": "All",
+    "event": "Event",
+    "design": "Design",
+    "noItems": "Portfolio coming soon."
+  },
+  "contact": {
+    "label": "CONTACT",
+    "title": "Project Inquiry",
+    "subtitle": "Tell us about your new project. We'll get back to you within 24 hours.",
+    "form": {
+      "name": "Name / Organization",
+      "email": "Email",
+      "projectName": "Project Name",
+      "date": "Preferred Date",
+      "details": "Project Details",
+      "budget": "Budget Range",
+      "budgetPlaceholder": "Select an option",
+      "submit": "Send Inquiry",
+      "sending": "Sending...",
+      "success": "Your inquiry has been submitted. We'll get back to you shortly.",
+      "error": "Failed to send. Please contact us directly via email."
+    },
+    "info": {
+      "address": "Address",
+      "phone": "Phone",
+      "fax": "Fax",
+      "email": "Email",
+      "sns": "SNS"
+    }
+  },
+  "planninghub": {
+    "label": "PLANNINGHUB",
+    "badge": "All-in-One MICE Platform",
+    "title": "All-in-One Platform\nfor Event Planners",
+    "subtitle": "PlanningHUB is an integrated platform for MICE industry professionals. Planning, operations, and analytics — all in one place.",
+    "features": "Key Features",
+    "cta": {
+      "title": "Experience PlanningHUB Today",
+      "subtitle": "Try our key features without signing up.",
+      "button": "Go to PlanningHUB"
+    }
+  },
+  "floating": {
+    "title": "Quick Inquiry",
+    "subtitle": "Tell us briefly about your project.",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "submit": "Send",
+    "sending": "Sending...",
+    "success": "Submitted!",
+    "error": "Failed to send"
+  },
+  "footer": {
+    "copyright": "© 2025 PlanningPub Inc. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  }
+}
