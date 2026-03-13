@@ -6,6 +6,7 @@ export interface PortfolioItem {
   description: string;
   descriptionEn: string;
   images: string[];
+  thumbnail?: string;
   year: number;
   order: number;
   featured?: boolean;

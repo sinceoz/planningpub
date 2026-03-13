@@ -47,6 +47,16 @@ export default function PortfolioPreview() {
             const venue = locale === 'ko' ? (item.venue || '') : (item.venueEn || '');
             return (
               <GlassCard key={item.id} className="overflow-hidden group">
+                {/* Thumbnail */}
+                {(item.thumbnail || item.images[0]) && (
+                  <div className="aspect-[16/9] overflow-hidden bg-bg-dark">
+                    <img
+                      src={item.thumbnail || item.images[0]}
+                      alt={title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                )}
                 <div className="p-5">
                   <span className="text-xs font-semibold uppercase tracking-wider text-brand-mint">
                     {item.year}

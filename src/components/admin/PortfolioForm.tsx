@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { X, Languages } from 'lucide-react';
 import type { PortfolioItem } from '@/types';
+import ImageUploader from './ImageUploader';
 
 interface PortfolioFormProps {
   item: PortfolioItem | null;
@@ -63,7 +64,8 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
     conceptEn: item?.conceptEn || '',
     planningPoint: item?.planningPoint || '',
     planningPointEn: item?.planningPointEn || '',
-    images: item?.images?.join(', ') || '',
+    images: item?.images || [],
+    thumbnail: item?.thumbnail || '',
   });
 
   const set = (field: string, value: string | number | boolean) =>
@@ -73,8 +75,8 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
     // Collect Korean fields where English counterpart is empty
     const textsToTranslate: Record<string, string> = {};
     for (const [koField, enField] of TRANSLATABLE_PAIRS) {
-      const koVal = (form as Record<string, string | number | boolean>)[koField] as string;
-      const enVal = (form as Record<string, string | number | boolean>)[enField] as string;
+      const koVal = (form as unknown as Record<string, string>)[koField] || '';
+      const enVal = (form as unknown as Record<string, string>)[enField] || '';
       if (koVal.trim() && !enVal.trim()) {
         textsToTranslate[enField] = koVal;
       }
@@ -101,10 +103,6 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
     if (!form.year) return alert('연도를 입력하세요.');
 
     setSaving(true);
-    const images = form.images
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
 
     await onSave({
       ...(item?.id ? { id: item.id } : {}),
@@ -124,7 +122,8 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
       conceptEn: form.conceptEn.trim(),
       planningPoint: form.planningPoint.trim(),
       planningPointEn: form.planningPointEn.trim(),
-      images,
+      images: form.images,
+      thumbnail: form.thumbnail,
     });
     setSaving(false);
   };
@@ -245,12 +244,11 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
             <legend className="text-sm font-semibold text-brand-mint tracking-wider uppercase mb-4">
               이미지
             </legend>
-            <TextArea
-              label="이미지 URL (쉼표로 구분)"
-              value={form.images}
-              onChange={(v) => set('images', v)}
-              rows={2}
-              placeholder="https://example.com/img1.jpg, https://example.com/img2.jpg"
+            <ImageUploader
+              images={form.images}
+              thumbnail={form.thumbnail}
+              itemId={item?.id || `new-${Date.now()}`}
+              onChange={(images, thumbnail) => setForm((prev) => ({ ...prev, images, thumbnail }))}
             />
           </fieldset>
 

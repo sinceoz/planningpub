@@ -34,6 +34,17 @@ export default function PortfolioCard({ item, index, onClick }: PortfolioCardPro
       onClick={onClick}
       className="group relative overflow-hidden rounded-xl border border-border-default bg-bg-surface hover:border-brand-mint/30 hover:bg-bg-surface-hover transition-all cursor-pointer"
     >
+      {/* Thumbnail */}
+      {(item.thumbnail || item.images[0]) && (
+        <div className="aspect-[16/9] overflow-hidden bg-bg-dark">
+          <img
+            src={item.thumbnail || item.images[0]}
+            alt={title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+      )}
+
       <div className="p-5 md:p-6">
         {/* Year badge */}
         <span className="inline-block text-xs font-semibold text-brand-mint tracking-wider mb-3">
