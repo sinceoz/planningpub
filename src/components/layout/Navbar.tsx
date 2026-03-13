@@ -19,10 +19,12 @@ export default function Navbar() {
     <header className="fixed top-0 left-0 right-0 z-50 glass">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* 로고 */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold text-text-primary">
-            Planning<span className="text-brand-purple">Pub</span>
-          </span>
+        <Link href="/" className="flex items-center">
+          <img
+            src="/logos/white1.png"
+            alt="PlanningPub"
+            className="h-7"
+          />
         </Link>
 
         {/* 데스크톱 네비게이션 */}

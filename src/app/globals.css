@@ -8,13 +8,14 @@
   --color-bg-surface: rgba(255, 255, 255, 0.02);
   --color-bg-surface-hover: rgba(255, 255, 255, 0.04);
 
-  /* 브랜드 컬러 */
-  --color-brand-purple: #7842B3;
-  --color-brand-purple-light: #9D6AD0;
-  --color-brand-purple-glow: rgba(120, 66, 179, 0.4);
-  --color-brand-mint: #00E3AA;
-  --color-brand-mint-light: #66F0CC;
-  --color-brand-mint-glow: rgba(0, 227, 170, 0.4);
+  /* 브랜드 컬러 — 로고 기반 */
+  --color-brand-purple: #8B6DB5;
+  --color-brand-purple-light: #A78BC8;
+  --color-brand-purple-glow: rgba(139, 109, 181, 0.4);
+  --color-brand-mint: #4ECDC4;
+  --color-brand-mint-light: #7EDAD4;
+  --color-brand-mint-glow: rgba(78, 205, 196, 0.4);
+  --color-brand-navy: #2D4373;
 
   /* 텍스트 */
   --color-text-primary: #F0F0F5;

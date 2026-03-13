@@ -14,8 +14,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* 회사 정보 */}
           <div>
-            <Link href="/" className="text-xl font-bold text-text-primary">
-              Planning<span className="text-brand-purple">Pub</span>
+            <Link href="/" className="inline-block">
+              <img
+                src="/logos/white1.png"
+                alt="PlanningPub"
+                className="h-8"
+              />
             </Link>
             <p className="mt-3 text-sm text-text-muted leading-relaxed">
               {COMPANY.address}
