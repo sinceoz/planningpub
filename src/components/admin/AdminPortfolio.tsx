@@ -25,7 +25,7 @@ import {
   Search,
   Star,
 } from 'lucide-react';
-import PortfolioForm from './PortfolioForm';
+import PortfolioForm, { translateFields } from './PortfolioForm';
 
 const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'pub=8528';
 const COLLECTION = 'portfolios';
@@ -72,13 +72,44 @@ export default function AdminPortfolio() {
     localStorage.removeItem('admin_authed');
   };
 
+  // Auto-translate empty English fields for a single item
+  const autoTranslateItem = async (
+    item: Omit<PortfolioItem, 'id'>,
+  ): Promise<Omit<PortfolioItem, 'id'>> => {
+    const pairs: [string, string][] = [
+      ['title', 'titleEn'],
+      ['description', 'descriptionEn'],
+      ['venue', 'venueEn'],
+      ['organizer', 'organizerEn'],
+      ['concept', 'conceptEn'],
+      ['planningPoint', 'planningPointEn'],
+    ];
+    const textsToTranslate: Record<string, string> = {};
+    const rec = item as Record<string, unknown>;
+    for (const [koField, enField] of pairs) {
+      const koVal = (rec[koField] as string) || '';
+      const enVal = (rec[enField] as string) || '';
+      if (koVal.trim() && !enVal.trim()) {
+        textsToTranslate[enField] = koVal;
+      }
+    }
+    if (Object.keys(textsToTranslate).length === 0) return item;
+    try {
+      const translations = await translateFields(textsToTranslate);
+      return { ...item, ...translations } as Omit<PortfolioItem, 'id'>;
+    } catch {
+      return item; // translation failed — keep as is
+    }
+  };
+
   // Sync static data to Firestore (returns synced items)
   const syncToFirestore = useCallback(async (): Promise<PortfolioItem[]> => {
     setSyncing(true);
     try {
       for (const item of PORTFOLIO_DATA) {
         const { id, ...data } = item;
-        await addDoc(collection(db, COLLECTION), { ...data, originalId: id });
+        const translated = await autoTranslateItem(data);
+        await addDoc(collection(db, COLLECTION), { ...translated, originalId: id });
       }
       // Re-read from Firestore to get generated IDs
       const q = query(collection(db, COLLECTION), orderBy('order'));
@@ -130,16 +161,15 @@ export default function AdminPortfolio() {
     if (authed) loadData();
   }, [authed, loadData]);
 
-  // CRUD
+  // CRUD — auto-translate empty English fields before saving
   const handleSave = async (data: Omit<PortfolioItem, 'id'> & { id?: string }) => {
     try {
-      if (data.id) {
-        // Update
-        const { id, ...rest } = data;
-        await updateDoc(doc(db, COLLECTION, id), rest);
+      const { id, ...rest } = data;
+      const translated = await autoTranslateItem(rest);
+      if (id) {
+        await updateDoc(doc(db, COLLECTION, id), translated);
       } else {
-        // Create
-        await addDoc(collection(db, COLLECTION), data);
+        await addDoc(collection(db, COLLECTION), translated);
       }
       setShowForm(false);
       setEditItem(null);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Languages } from 'lucide-react';
 import type { PortfolioItem } from '@/types';
 
 interface PortfolioFormProps {
@@ -11,9 +11,40 @@ interface PortfolioFormProps {
   onClose: () => void;
 }
 
+/** Translate Korean fields to English via /api/translate */
+export async function translateFields(
+  texts: Record<string, string>,
+): Promise<Record<string, string>> {
+  const toTranslate: Record<string, string> = {};
+  for (const [key, val] of Object.entries(texts)) {
+    if (val.trim()) toTranslate[key] = val;
+  }
+  if (Object.keys(toTranslate).length === 0) return {};
+
+  const res = await fetch('/api/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texts: toTranslate }),
+  });
+  if (!res.ok) throw new Error('Translation API failed');
+  const { translations } = await res.json();
+  return translations as Record<string, string>;
+}
+
+// Field pairs: ko field → en field
+const TRANSLATABLE_PAIRS: [string, string][] = [
+  ['title', 'titleEn'],
+  ['description', 'descriptionEn'],
+  ['venue', 'venueEn'],
+  ['organizer', 'organizerEn'],
+  ['concept', 'conceptEn'],
+  ['planningPoint', 'planningPointEn'],
+];
+
 export default function PortfolioForm({ item, nextOrder, onSave, onClose }: PortfolioFormProps) {
   const isEdit = !!item;
   const [saving, setSaving] = useState(false);
+  const [translating, setTranslating] = useState(false);
 
   const [form, setForm] = useState({
     title: item?.title || '',
@@ -37,6 +68,32 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
 
   const set = (field: string, value: string | number | boolean) =>
     setForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleAutoTranslate = async () => {
+    // Collect Korean fields where English counterpart is empty
+    const textsToTranslate: Record<string, string> = {};
+    for (const [koField, enField] of TRANSLATABLE_PAIRS) {
+      const koVal = (form as Record<string, string | number | boolean>)[koField] as string;
+      const enVal = (form as Record<string, string | number | boolean>)[enField] as string;
+      if (koVal.trim() && !enVal.trim()) {
+        textsToTranslate[enField] = koVal;
+      }
+    }
+
+    if (Object.keys(textsToTranslate).length === 0) {
+      alert('번역할 빈 영문 필드가 없습니다.');
+      return;
+    }
+
+    setTranslating(true);
+    try {
+      const translations = await translateFields(textsToTranslate);
+      setForm((prev) => ({ ...prev, ...translations }));
+    } catch {
+      alert('번역에 실패했습니다. 다시 시도해주세요.');
+    }
+    setTranslating(false);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,12 +141,23 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
           <h2 className="text-lg font-bold text-text-primary">
             {isEdit ? '포트폴리오 수정' : '포트폴리오 추가'}
           </h2>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-md hover:bg-bg-surface text-text-dim hover:text-text-primary transition-colors cursor-pointer"
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleAutoTranslate}
+              disabled={translating}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-brand-mint/30 text-brand-mint hover:bg-brand-mint/10 transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <Languages size={14} />
+              {translating ? '번역 중...' : '빈 영문 자동번역'}
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-md hover:bg-bg-surface text-text-dim hover:text-text-primary transition-colors cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Form */}
@@ -101,9 +169,9 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
             </legend>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label="행사명 (한글) *" value={form.title} onChange={(v) => set('title', v)} />
-              <Field label="행사명 (영문)" value={form.titleEn} onChange={(v) => set('titleEn', v)} />
+              <Field label="행사명 (영문)" value={form.titleEn} onChange={(v) => set('titleEn', v)} placeholder="자동번역 가능" />
               <Field label="설명 (한글)" value={form.description} onChange={(v) => set('description', v)} />
-              <Field label="설명 (영문)" value={form.descriptionEn} onChange={(v) => set('descriptionEn', v)} />
+              <Field label="설명 (영문)" value={form.descriptionEn} onChange={(v) => set('descriptionEn', v)} placeholder="자동번역 가능" />
               <div className="grid grid-cols-3 gap-3">
                 <Field
                   label="연도 *"
@@ -140,7 +208,7 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
             </legend>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field label="장소 (한글)" value={form.venue} onChange={(v) => set('venue', v)} />
-              <Field label="장소 (영문)" value={form.venueEn} onChange={(v) => set('venueEn', v)} />
+              <Field label="장소 (영문)" value={form.venueEn} onChange={(v) => set('venueEn', v)} placeholder="자동번역 가능" />
               <Field
                 label="주최/주관 (한글)"
                 value={form.organizer}
@@ -151,7 +219,7 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
                 label="주최/주관 (영문)"
                 value={form.organizerEn}
                 onChange={(v) => set('organizerEn', v)}
-                placeholder="Host / Organizer"
+                placeholder="자동번역 가능"
               />
             </div>
             <p className="text-xs text-text-dim mt-2">
@@ -166,9 +234,9 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
             </legend>
             <div className="space-y-4">
               <TextArea label="Concept (한글)" value={form.concept} onChange={(v) => set('concept', v)} rows={3} />
-              <TextArea label="Concept (영문)" value={form.conceptEn} onChange={(v) => set('conceptEn', v)} rows={3} />
+              <TextArea label="Concept (영문)" value={form.conceptEn} onChange={(v) => set('conceptEn', v)} rows={3} placeholder="자동번역 가능" />
               <TextArea label="Planning Point (한글)" value={form.planningPoint} onChange={(v) => set('planningPoint', v)} rows={3} />
-              <TextArea label="Planning Point (영문)" value={form.planningPointEn} onChange={(v) => set('planningPointEn', v)} rows={3} />
+              <TextArea label="Planning Point (영문)" value={form.planningPointEn} onChange={(v) => set('planningPointEn', v)} rows={3} placeholder="자동번역 가능" />
             </div>
           </fieldset>
 
