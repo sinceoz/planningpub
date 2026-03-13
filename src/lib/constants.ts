@@ -9,7 +9,7 @@ export const COMPANY = {
   fax: '02-6455-4554',
   email: 'info@planningpub.com',
   website: 'https://planningpub.com',
-  planninghub: 'https://planninghub.co.kr',
+  planninghub: 'https://planninghub.kr',
   ceo: '박재홍',
   ceoEn: 'Park Jaehong',
   bizNo: '587-86-01626',

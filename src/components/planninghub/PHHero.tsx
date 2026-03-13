@@ -2,6 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
+import { COMPANY } from '@/lib/constants';
+import { ExternalLink } from 'lucide-react';
 
 export default function PHHero() {
   const t = useTranslations('planninghub');
@@ -44,6 +46,22 @@ export default function PHHero() {
         >
           {t('subtitle')}
         </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.45 }}
+        >
+          <a
+            href={COMPANY.planninghub}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-8 inline-flex items-center gap-2 px-8 py-4 text-base font-semibold bg-gradient-to-r from-brand-mint to-brand-purple text-white rounded-lg hover:shadow-[0_8px_30px_-8px_var(--color-brand-mint-glow)] hover:-translate-y-0.5 transition-all"
+          >
+            {t('cta.button')}
+            <ExternalLink size={18} className="group-hover:translate-x-1 transition-transform" />
+          </a>
+        </motion.div>
       </div>
     </section>
   );
