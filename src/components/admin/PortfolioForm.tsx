@@ -171,18 +171,12 @@ export default function PortfolioForm({ item, nextOrder, onSave, onClose }: Port
               <Field label="행사명 (영문)" value={form.titleEn} onChange={(v) => set('titleEn', v)} placeholder="자동번역 가능" />
               <Field label="설명 (한글)" value={form.description} onChange={(v) => set('description', v)} />
               <Field label="설명 (영문)" value={form.descriptionEn} onChange={(v) => set('descriptionEn', v)} placeholder="자동번역 가능" />
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <Field
                   label="연도 *"
                   type="number"
                   value={String(form.year)}
                   onChange={(v) => set('year', parseInt(v) || 0)}
-                />
-                <Field
-                  label="순서"
-                  type="number"
-                  value={String(form.order)}
-                  onChange={(v) => set('order', parseInt(v) || 0)}
                 />
                 <div className="flex items-end pb-1">
                   <label className="flex items-center gap-2 cursor-pointer">
