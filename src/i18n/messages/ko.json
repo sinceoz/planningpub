@@ -67,7 +67,7 @@
   "about": {
     "label": "ABOUT US",
     "title": "MICE Platformer,\nPlanningPub",
-    "intro": "플래닝펍은 창의적인 아이디어와 기술 친화적이고 전문적인 실행력을 바탕으로 즐거움이 있는 모든 순간을 만들고 있습니다. 기업 행사, 국제 회의, 페스티벌, 전시, 메타버스 행사까지 플래닝펍은 즐거움이 모이는 모든 순간에 함께하겠습니다.",
+    "intro": "플래닝펍은 창의적인 아이디어와 기술 친화적이고 전문적인 실행력을 바탕으로\n즐거움이 가득한 모든 순간들을 만들고 있습니다.\n단일 행사를 플랫폼으로 만들어 지속 발전이 가능한 형태로 재설계하는 것,\n바로 플래닝펍이 꿈꾸는 MICE 산업의 디지털 전환입니다.",
     "mission": {
       "label": "MISSION",
       "title": "우리의 미션",
@@ -83,8 +83,8 @@
       "title": "팀 소개"
     },
     "certification": {
-      "label": "CERTIFICATIONS & PARTNERS",
-      "title": "인증 및 파트너"
+      "label": "PARTNERS",
+      "title": "파트너"
     }
   },
   "portfolio": {

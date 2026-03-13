@@ -3,18 +3,27 @@
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import SectionLabel from '@/components/ui/SectionLabel';
-import { Shield } from 'lucide-react';
 
-// 인증/파트너 플레이스홀더 (실제 로고 이미지로 교체 필요)
-const CERTIFICATIONS = [
-  'MICE Alliance',
-  'PCO 인증',
-  'Korea MICE Bureau',
-  'ICCA Member',
-  'ISO 9001',
-  'Seoul Tourism Organization',
-  'MICE Korea',
-  'Convention Bureau',
+const PARTNERS = [
+  '한국관광공사',
+  '한국청소년활동진흥원',
+  '소상공인시장진흥공단',
+  '한국정신문화재단',
+  'N15 PARTNERS',
+  '우리다문화장학재단',
+  '인공지능산업융합사업단',
+  '연합뉴스',
+  '한국청소년정책연구원',
+  '가재울청소년센터',
+  '경상북도콘텐츠진흥원',
+  '오산교육재단',
+  '경남창조경제혁신센터',
+  '경기도마을공동체지원센터',
+  '한국국학진흥원',
+  '아동권리보장원',
+  '경기도사회적경제원',
+  '재외동포청',
+  '미주한인상공회의소 총연합회',
 ];
 
 export default function CertificationGrid() {
@@ -33,24 +42,22 @@ export default function CertificationGrid() {
           {t('title')}
         </motion.h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {CERTIFICATIONS.map((cert, i) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {PARTNERS.map((name, i) => (
             <motion.div
-              key={cert}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              key={name}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              className="flex flex-col items-center gap-3 p-6 rounded-xl border border-border-default bg-bg-surface hover:bg-bg-surface-hover transition-colors"
+              transition={{ delay: i * 0.03 }}
+              className="flex items-center justify-center px-4 py-5 rounded-xl border border-border-default bg-bg-surface hover:bg-bg-surface-hover hover:border-brand-mint/20 transition-colors"
             >
-              <Shield size={28} className="text-text-dim" />
-              <span className="text-xs text-text-muted text-center">{cert}</span>
+              <span className="text-sm text-text-muted text-center leading-snug">
+                {name}
+              </span>
             </motion.div>
           ))}
         </div>
-        <p className="mt-6 text-sm text-text-dim text-center">
-          * 실제 인증 및 파트너 로고로 교체 예정
-        </p>
       </div>
     </section>
   );

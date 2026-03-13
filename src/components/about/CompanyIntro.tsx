@@ -24,7 +24,7 @@ export default function CompanyIntro() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="mt-6 text-lg text-text-muted leading-relaxed max-w-3xl"
+          className="mt-6 text-lg text-text-muted leading-relaxed max-w-3xl whitespace-pre-line"
         >
           {t('intro')}
         </motion.p>

@@ -67,7 +67,7 @@
   "about": {
     "label": "ABOUT US",
     "title": "MICE Platformer,\nPlanningPub",
-    "intro": "With creative ideas and tech-friendly professional execution, PlanningPub creates every moment of joy. From corporate events, international conferences, festivals, exhibitions, to metaverse events — PlanningPub will be with you at every moment where joy gathers.",
+    "intro": "With creative ideas and tech-friendly professional execution,\nPlanningPub creates every moment filled with joy.\nRedesigning individual events into platforms that enable sustainable growth —\nthat is the digital transformation of the MICE industry that PlanningPub envisions.",
     "mission": {
       "label": "MISSION",
       "title": "Our Mission",
@@ -83,8 +83,8 @@
       "title": "Meet the Team"
     },
     "certification": {
-      "label": "CERTIFICATIONS & PARTNERS",
-      "title": "Certifications & Partners"
+      "label": "PARTNERS",
+      "title": "Partners"
     }
   },
   "portfolio": {
