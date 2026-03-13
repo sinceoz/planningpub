@@ -6,7 +6,7 @@ export const COMPANY = {
   address: '서울시 서초구 서초대로 131 로고스빌딩 6층',
   addressEn: '6F, Logos Building, 131 Seocho-daero, Seocho-gu, Seoul, Korea',
   phone: '02-2066-8528',
-  fax: '',
+  fax: '02-6455-4554',
   email: 'info@planningpub.com',
   website: 'https://planningpub.com',
   planninghub: 'https://planninghub.co.kr',
