@@ -42,7 +42,6 @@ export default function AdminPortfolio() {
   const [showForm, setShowForm] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<PortfolioItem | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortField, setSortField] = useState<'year' | 'order' | 'title'>('year');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
   const [syncing, setSyncing] = useState(false);
 
@@ -190,7 +189,15 @@ export default function AdminPortfolio() {
     }
   };
 
-  // Sort & Filter
+  /** Parse "2025. 12. 4." or "2025. 5. 23. - 25." into a sortable timestamp */
+  const parseDate = (dateStr: string): number => {
+    if (!dateStr) return 0;
+    const m = dateStr.match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})/);
+    if (!m) return 0;
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime();
+  };
+
+  // Sort & Filter: 날짜순 → 대표 우선 → 가나다순
   const sortedFiltered = items
     .filter((item) => {
       if (!searchQuery) return true;
@@ -205,28 +212,15 @@ export default function AdminPortfolio() {
     })
     .sort((a, b) => {
       const dir = sortDir === 'asc' ? 1 : -1;
-      if (sortField === 'year') return (a.year - b.year) * dir;
-      if (sortField === 'order') return (a.order - b.order) * dir;
-      return a.title.localeCompare(b.title) * dir;
+      // 1. 날짜순
+      const dateA = parseDate(a.date || '');
+      const dateB = parseDate(b.date || '');
+      if (dateA !== dateB) return (dateA - dateB) * dir;
+      // 2. 대표(featured) 우선
+      if (a.featured !== b.featured) return a.featured ? -1 : 1;
+      // 3. 가나다순
+      return a.title.localeCompare(b.title, 'ko');
     });
-
-  const toggleSort = (field: typeof sortField) => {
-    if (sortField === field) {
-      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortField(field);
-      setSortDir('desc');
-    }
-  };
-
-  const SortIcon = ({ field }: { field: typeof sortField }) =>
-    sortField === field ? (
-      sortDir === 'asc' ? (
-        <ChevronUp size={14} />
-      ) : (
-        <ChevronDown size={14} />
-      )
-    ) : null;
 
   // ─── Login Screen ───
   if (!authed) {
@@ -348,31 +342,16 @@ export default function AdminPortfolio() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-bg-card text-text-dim border-b border-border-default">
+                  <th className="text-left px-4 py-3 font-medium">연도</th>
+                  <th className="text-left px-4 py-3 font-medium min-w-[300px]">행사명</th>
                   <th
-                    className="text-left px-4 py-3 font-medium cursor-pointer hover:text-text-primary select-none"
-                    onClick={() => toggleSort('order')}
+                    className="text-left px-4 py-3 font-medium hidden lg:table-cell cursor-pointer hover:text-text-primary select-none"
+                    onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
                   >
                     <span className="inline-flex items-center gap-1">
-                      # <SortIcon field="order" />
+                      날짜 {sortDir === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                     </span>
                   </th>
-                  <th
-                    className="text-left px-4 py-3 font-medium cursor-pointer hover:text-text-primary select-none"
-                    onClick={() => toggleSort('year')}
-                  >
-                    <span className="inline-flex items-center gap-1">
-                      연도 <SortIcon field="year" />
-                    </span>
-                  </th>
-                  <th
-                    className="text-left px-4 py-3 font-medium cursor-pointer hover:text-text-primary select-none min-w-[300px]"
-                    onClick={() => toggleSort('title')}
-                  >
-                    <span className="inline-flex items-center gap-1">
-                      행사명 <SortIcon field="title" />
-                    </span>
-                  </th>
-                  <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">날짜</th>
                   <th className="text-left px-4 py-3 font-medium hidden xl:table-cell">장소</th>
                   <th className="text-right px-4 py-3 font-medium">관리</th>
                 </tr>
@@ -383,7 +362,6 @@ export default function AdminPortfolio() {
                     key={item.id}
                     className="border-b border-border-default hover:bg-bg-surface-hover transition-colors"
                   >
-                    <td className="px-4 py-3 text-text-dim">{item.order}</td>
                     <td className="px-4 py-3">
                       <span className="inline-flex items-center gap-1.5">
                         <span className="text-text-muted">{item.year}</span>
@@ -420,7 +398,7 @@ export default function AdminPortfolio() {
                 ))}
                 {sortedFiltered.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="text-center py-12 text-text-muted">
+                    <td colSpan={5} className="text-center py-12 text-text-muted">
                       {searchQuery ? '검색 결과가 없습니다.' : '포트폴리오 항목이 없습니다.'}
                     </td>
                   </tr>
