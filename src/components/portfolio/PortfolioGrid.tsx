@@ -32,7 +32,10 @@ export default function PortfolioGrid() {
     const load = async () => {
       try {
         const q = query(collection(db, 'portfolios'), orderBy('order'));
-        const snapshot = await getDocs(q);
+        const snapshot = await Promise.race([
+          getDocs(q),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
+        ]);
         if (!snapshot.empty) {
           const data = snapshot.docs.map((d) => ({
             ...d.data(),
@@ -41,7 +44,7 @@ export default function PortfolioGrid() {
           setItems(data);
         }
       } catch {
-        // Firebase not configured — keep static data
+        // Firebase not configured or timeout — keep static data
       }
     };
     load();

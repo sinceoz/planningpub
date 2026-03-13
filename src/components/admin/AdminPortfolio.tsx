@@ -72,12 +72,15 @@ export default function AdminPortfolio() {
     localStorage.removeItem('admin_authed');
   };
 
-  // Load data
+  // Load data with timeout to prevent infinite loading
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const q = query(collection(db, COLLECTION), orderBy('order'));
-      const snapshot = await getDocs(q);
+      const snapshot = await Promise.race([
+        getDocs(q),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
+      ]);
       if (!snapshot.empty) {
         const data = snapshot.docs.map((d) => ({
           ...d.data(),
@@ -85,11 +88,9 @@ export default function AdminPortfolio() {
         })) as PortfolioItem[];
         setItems(data);
       } else {
-        // Firestore empty — use static data
         setItems(PORTFOLIO_DATA);
       }
     } catch {
-      // Firebase not configured — use static data
       setItems(PORTFOLIO_DATA);
     }
     setLoading(false);
