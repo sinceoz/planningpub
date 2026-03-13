@@ -16,7 +16,7 @@ export default function Footer() {
           <div>
             <Link href="/" className="inline-block">
               <img
-                src="/logos/white1.png"
+                src="/logos/white22.png"
                 alt="PlanningPub"
                 className="h-8"
               />

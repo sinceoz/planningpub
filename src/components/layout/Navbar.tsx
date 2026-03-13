@@ -21,7 +21,7 @@ export default function Navbar() {
         {/* 로고 */}
         <Link href="/" className="flex items-center">
           <img
-            src="/logos/white1.png"
+            src="/logos/white22.png"
             alt="PlanningPub"
             className="h-7"
           />
