@@ -60,7 +60,6 @@ export const CREW_MEMBERS = [
 
 // 예산 범위 옵션
 export const BUDGET_OPTIONS = [
-  { value: 'under-10m', labelKo: '1,000만원 미만', labelEn: 'Under ₩10M' },
   { value: '10m-50m', labelKo: '1,000만원 ~ 5,000만원', labelEn: '₩10M ~ ₩50M' },
   { value: '50m-100m', labelKo: '5,000만원 ~ 1억원', labelEn: '₩50M ~ ₩100M' },
   { value: '100m-500m', labelKo: '1억원 ~ 5억원', labelEn: '₩100M ~ ₩500M' },
