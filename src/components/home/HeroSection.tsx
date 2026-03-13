@@ -42,27 +42,21 @@ export default function HeroSection() {
       <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] rounded-full bg-brand-purple/8 blur-[140px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] rounded-full bg-brand-mint/5 blur-[120px] pointer-events-none" />
 
-      {/* ── Accumulation Lines — visual metaphor ── */}
-      <div className="absolute right-6 md:right-12 lg:right-20 top-[30%] flex flex-col gap-5 items-end pointer-events-none">
-        {[...Array(8)].map((_, i) => (
-          <motion.div
-            key={i}
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{ scaleX: 1, opacity: 0.06 + i * 0.035 }}
-            transition={{
-              delay: 1.4 + i * 0.15,
-              duration: 0.9,
-              ease: [0.23, 1, 0.32, 1],
-            }}
-            className="h-[1px] origin-right"
-            style={{
-              width: `${40 + i * 24}px`,
-              background:
-                'linear-gradient(90deg, transparent 0%, var(--color-brand-mint) 100%)',
-            }}
-          />
-        ))}
-      </div>
+      {/* ── Logo Icon — brand watermark ── */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 0.07, scale: 1 }}
+        transition={{ duration: 2, delay: 1.2, ease: 'easeOut' }}
+        className="absolute right-[-5%] md:right-[2%] lg:right-[5%] top-[20%] md:top-[18%] pointer-events-none select-none"
+      >
+        <img
+          src="/logos/logoonly.svg"
+          alt=""
+          aria-hidden="true"
+          className="w-[280px] md:w-[420px] lg:w-[520px]"
+          draggable={false}
+        />
+      </motion.div>
 
       {/* ── Grid Pattern (subtle) ── */}
       <div
