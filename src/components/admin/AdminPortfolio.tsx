@@ -72,7 +72,30 @@ export default function AdminPortfolio() {
     localStorage.removeItem('admin_authed');
   };
 
-  // Load data with timeout to prevent infinite loading
+  // Sync static data to Firestore (returns synced items)
+  const syncToFirestore = useCallback(async (): Promise<PortfolioItem[]> => {
+    setSyncing(true);
+    try {
+      for (const item of PORTFOLIO_DATA) {
+        const { id, ...data } = item;
+        await addDoc(collection(db, COLLECTION), { ...data, originalId: id });
+      }
+      // Re-read from Firestore to get generated IDs
+      const q = query(collection(db, COLLECTION), orderBy('order'));
+      const snapshot = await getDocs(q);
+      const data = snapshot.docs.map((d) => ({
+        ...d.data(),
+        id: d.id,
+      })) as PortfolioItem[];
+      setSyncing(false);
+      return data;
+    } catch (err) {
+      setSyncing(false);
+      throw err;
+    }
+  }, []);
+
+  // Load data — auto-sync if Firestore is reachable but empty
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
@@ -88,35 +111,24 @@ export default function AdminPortfolio() {
         })) as PortfolioItem[];
         setItems(data);
       } else {
-        setItems(PORTFOLIO_DATA);
+        // Firestore reachable but empty — auto-sync static data
+        try {
+          const synced = await syncToFirestore();
+          setItems(synced);
+        } catch {
+          setItems(PORTFOLIO_DATA);
+        }
       }
     } catch {
+      // Firebase unreachable — use static data
       setItems(PORTFOLIO_DATA);
     }
     setLoading(false);
-  }, []);
+  }, [syncToFirestore]);
 
   useEffect(() => {
     if (authed) loadData();
   }, [authed, loadData]);
-
-  // Sync static data to Firestore
-  const syncToFirestore = async () => {
-    if (!confirm('정적 데이터를 Firestore에 업로드합니다. 기존 데이터가 있으면 중복될 수 있습니다. 계속하시겠습니까?'))
-      return;
-    setSyncing(true);
-    try {
-      for (const item of PORTFOLIO_DATA) {
-        const { id, ...data } = item;
-        await addDoc(collection(db, COLLECTION), { ...data, originalId: id });
-      }
-      await loadData();
-      alert('Firestore 동기화 완료!');
-    } catch (err) {
-      alert('동기화 실패: Firebase 설정을 확인하세요.\n' + String(err));
-    }
-    setSyncing(false);
-  };
 
   // CRUD
   const handleSave = async (data: Omit<PortfolioItem, 'id'> & { id?: string }) => {
@@ -251,12 +263,20 @@ export default function AdminPortfolio() {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={syncToFirestore}
+              onClick={async () => {
+                if (!confirm('정적 데이터를 Firestore에 다시 업로드합니다. 기존 데이터와 중복될 수 있습니다. 계속하시겠습니까?')) return;
+                try {
+                  const synced = await syncToFirestore();
+                  setItems(synced);
+                } catch (err) {
+                  alert('동기화 실패: Firebase 설정을 확인하세요.\n' + String(err));
+                }
+              }}
               disabled={syncing}
               className="hidden md:inline-flex items-center gap-2 px-4 py-2 text-sm rounded-lg border border-border-default text-text-muted hover:border-border-hover hover:text-text-primary transition-all cursor-pointer disabled:opacity-50"
             >
               <Upload size={15} />
-              {syncing ? '동기화 중...' : 'Firestore 동기화'}
+              {syncing ? '동기화 중...' : '정적 데이터 재동기화'}
             </button>
             <button
               onClick={() => {
