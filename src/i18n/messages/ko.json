@@ -11,12 +11,20 @@
     "inquiry": "문의하기"
   },
   "hero": {
-    "badge": "MICE Platformer",
-    "title1": "Plan? Easy.",
-    "title2": "WE MAKE IT!",
-    "subtitle": "기획부터 운영, 데이터 분석까지. MICE 산업의 모든 것을 플랫폼으로 연결합니다.",
+    "headline1": "행사는 소비되고,",
+    "headline2": "플랫폼은",
+    "headline3": "축적된다",
+    "body1": "대행사가 바뀌고, 담당자가 바뀌면 행사는 매번 처음부터 다시 시작됩니다.",
+    "body2": "PLANNINGPUB은 기획자의 노하우와 개발자의 기술로\nOne Event, One Platform 을 통해 지속 성장하는 플랫폼을 설계합니다.",
+    "body3": "\"We don't just run events. We PLATFORM them.\"",
     "cta": "프로젝트 문의",
-    "learnMore": "더 알아보기"
+    "portfolioCta": "포트폴리오 보기",
+    "stat1Value": "45+",
+    "stat1Label": "Projects",
+    "stat2Value": "40개국",
+    "stat2Label": "Global Events",
+    "stat3Value": "100만+",
+    "stat3Label": "Participants"
   },
   "micePlatformer": {
     "label": "WHY PLANNINGPUB",
@@ -25,26 +33,26 @@
     "cards": {
       "platform": {
         "title": "플랫폼화된 행사 기획",
-        "desc": "AI 기반 OneShotPlan으로 행사 기획의 효율을 극대화합니다."
+        "desc": "대행사 선정 후 사업기간 사용할 수 있는 아이디만 발급하면 인수인계 완료"
       },
       "communication": {
-        "title": "참가자 커뮤니케이션",
-        "desc": "COCONUT으로 참가자와의 모든 소통을 한곳에서 관리합니다."
+        "title": "가이드라인 누적",
+        "desc": "행사의 특이성과 기간 별로 수행해야 할 필수 과업 자동 누적 및 AI 분석"
       },
       "archive": {
-        "title": "자료 아카이빙",
-        "desc": "행사 자료와 데이터를 체계적으로 보관하고 재활용합니다."
+        "title": "아카이브 자동화",
+        "desc": "행사 구조에 맞는 정형화된 폴더 트리 생성, 사후 산출물 자동 분류"
       },
       "data": {
-        "title": "데이터 기반 관리",
-        "desc": "AttenDB와 EstiMATE로 데이터에 기반한 의사결정을 지원합니다."
+        "title": "DB 통합 관리",
+        "desc": "주요 참가자, 협력 기관 단체, 등록 DB 등을 통합하고 소멸시효를 자동 적용"
       }
     }
   },
   "services": {
     "label": "SERVICES",
     "title": "우리가 하는 일",
-    "subtitle": "MICE 산업의 A to Z, 플래닝펍이 함께합니다."
+    "subtitle": "창의적인 아이디어와 기술 친화적이고 전문적인 실행력을 바탕으로 즐거움이 있는 모든 순간을 만들고 있습니다."
   },
   "portfolioPreview": {
     "label": "PORTFOLIO",
@@ -59,7 +67,7 @@
   "about": {
     "label": "ABOUT US",
     "title": "MICE Platformer,\nPlanningPub",
-    "intro": "플래닝펍은 2015년 설립 이래 MICE(Meeting, Incentive, Convention, Exhibition) 산업에 디지털 혁신을 도입하고 있습니다. 단순 행사 대행을 넘어, 자체 개발 플랫폼 'PlanningHUB'를 통해 기획·운영·데이터 분석을 통합하는 MICE Platformer로 자리매김했습니다.",
+    "intro": "플래닝펍은 창의적인 아이디어와 기술 친화적이고 전문적인 실행력을 바탕으로 즐거움이 있는 모든 순간을 만들고 있습니다. 기업 행사, 국제 회의, 페스티벌, 전시, 메타버스 행사까지 플래닝펍은 즐거움이 모이는 모든 순간에 함께하겠습니다.",
     "mission": {
       "label": "MISSION",
       "title": "우리의 미션",
@@ -83,9 +91,17 @@
     "label": "PORTFOLIO",
     "title": "우리의 작업물",
     "all": "전체",
-    "event": "Event",
-    "design": "Design",
-    "noItems": "포트폴리오를 준비 중입니다."
+    "noItems": "포트폴리오를 준비 중입니다.",
+    "date": "날짜",
+    "venue": "장소",
+    "host": "주최",
+    "manager": "주관",
+    "concept": "Concept",
+    "planningPoint": "Planning Point",
+    "close": "닫기",
+    "noImages": "이미지 준비중",
+    "prev": "이전",
+    "next": "다음"
   },
   "contact": {
     "label": "CONTACT",
@@ -109,7 +125,8 @@
       "phone": "전화",
       "fax": "팩스",
       "email": "이메일",
-      "sns": "SNS"
+      "sns": "SNS",
+      "hours": "근무시간"
     }
   },
   "planninghub": {

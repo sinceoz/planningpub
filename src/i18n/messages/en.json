@@ -11,12 +11,20 @@
     "inquiry": "Inquiry"
   },
   "hero": {
-    "badge": "MICE Platformer",
-    "title1": "Plan? Easy.",
-    "title2": "WE MAKE IT!",
-    "subtitle": "From planning to operations and data analytics — we connect everything in the MICE industry through our platform.",
+    "headline1": "Events are consumed,",
+    "headline2": "Platforms",
+    "headline3": "accumulate",
+    "body1": "When the agency changes or the manager changes, every event starts from scratch all over again.",
+    "body2": "PLANNINGPUB combines planner expertise with developer technology.\nThrough One Event, One Platform, we design platforms that grow continuously.",
+    "body3": "\"We don't just run events. We PLATFORM them.\"",
     "cta": "Start a Project",
-    "learnMore": "Learn More"
+    "portfolioCta": "View Portfolio",
+    "stat1Value": "45+",
+    "stat1Label": "Projects",
+    "stat2Value": "40+",
+    "stat2Label": "Countries",
+    "stat3Value": "1M+",
+    "stat3Label": "Participants"
   },
   "micePlatformer": {
     "label": "WHY PLANNINGPUB",
@@ -24,27 +32,27 @@
     "subtitle": "Beyond a simple agency — a Platformer leading the digital transformation of the MICE industry.",
     "cards": {
       "platform": {
-        "title": "Platform-based Planning",
-        "desc": "Maximize event planning efficiency with AI-powered OneShotPlan."
+        "title": "Platformized Event Planning",
+        "desc": "Simply issue an ID for the project period after selecting an agency — handover complete."
       },
       "communication": {
-        "title": "Attendee Communication",
-        "desc": "Manage all attendee communications in one place with COCONUT."
+        "title": "Guideline Accumulation",
+        "desc": "Auto-accumulate mandatory tasks by event specifics and timeline, with AI analysis."
       },
       "archive": {
-        "title": "Data Archiving",
-        "desc": "Systematically store and reuse event materials and data."
+        "title": "Archive Automation",
+        "desc": "Generate structured folder trees matching event structure, auto-classify post-event deliverables."
       },
       "data": {
-        "title": "Data-driven Management",
-        "desc": "Support data-driven decisions with AttenDB and EstiMATE."
+        "title": "Integrated DB Management",
+        "desc": "Consolidate key participants, partner organizations, and registration DBs with automatic expiration policies."
       }
     }
   },
   "services": {
     "label": "SERVICES",
     "title": "What We Do",
-    "subtitle": "A to Z in the MICE industry — PlanningPub is with you."
+    "subtitle": "With creative ideas and tech-friendly professional execution, we create every moment of joy."
   },
   "portfolioPreview": {
     "label": "PORTFOLIO",
@@ -59,7 +67,7 @@
   "about": {
     "label": "ABOUT US",
     "title": "MICE Platformer,\nPlanningPub",
-    "intro": "Since its founding in 2015, PlanningPub has been driving digital innovation in the MICE (Meeting, Incentive, Convention, Exhibition) industry. Going beyond simple event management, we have positioned ourselves as a MICE Platformer that integrates planning, operations, and data analytics through our proprietary platform, PlanningHUB.",
+    "intro": "With creative ideas and tech-friendly professional execution, PlanningPub creates every moment of joy. From corporate events, international conferences, festivals, exhibitions, to metaverse events — PlanningPub will be with you at every moment where joy gathers.",
     "mission": {
       "label": "MISSION",
       "title": "Our Mission",
@@ -83,9 +91,17 @@
     "label": "PORTFOLIO",
     "title": "Our Work",
     "all": "All",
-    "event": "Event",
-    "design": "Design",
-    "noItems": "Portfolio coming soon."
+    "noItems": "Portfolio coming soon.",
+    "date": "Date",
+    "venue": "Venue",
+    "host": "Host",
+    "manager": "Organizer",
+    "concept": "Concept",
+    "planningPoint": "Planning Point",
+    "close": "Close",
+    "noImages": "Images coming soon",
+    "prev": "Prev",
+    "next": "Next"
   },
   "contact": {
     "label": "CONTACT",
@@ -109,7 +125,8 @@
       "phone": "Phone",
       "fax": "Fax",
       "email": "Email",
-      "sns": "SNS"
+      "sns": "SNS",
+      "hours": "Business Hours"
     }
   },
   "planninghub": {

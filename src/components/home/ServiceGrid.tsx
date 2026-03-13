@@ -5,13 +5,13 @@ import { motion } from 'framer-motion';
 import SectionLabel from '@/components/ui/SectionLabel';
 import { SERVICES } from '@/lib/constants';
 import {
-  Calendar, Award, Users, Globe, Mic,
-  Palette, Monitor, BarChart3, Megaphone, Lightbulb,
+  Mic, Globe, Glasses, Users, Music,
+  Palette, BookOpen, Monitor, Rocket,
 } from 'lucide-react';
 
 const ICON_MAP: Record<string, React.ElementType> = {
-  Calendar, Award, Users, Globe, Mic,
-  Palette, Monitor, BarChart3, Megaphone, Lightbulb,
+  Mic, Globe, Glasses, Users, Music,
+  Palette, BookOpen, Monitor, Rocket,
 };
 
 export default function ServiceGrid() {
@@ -40,7 +40,7 @@ export default function ServiceGrid() {
           {t('subtitle')}
         </motion.p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-4">
           {SERVICES.map((svc, i) => {
             const Icon = ICON_MAP[svc.icon];
             return (

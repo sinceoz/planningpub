@@ -1,15 +1,23 @@
 // 포트폴리오 아이템
 export interface PortfolioItem {
   id: string;
-  category: 'event' | 'design';
   title: string;
   titleEn: string;
   description: string;
   descriptionEn: string;
-  imageUrl: string;
+  images: string[];
   year: number;
   order: number;
   featured?: boolean;
+  date?: string;
+  venue?: string;
+  venueEn?: string;
+  organizer?: string;
+  organizerEn?: string;
+  concept?: string;
+  conceptEn?: string;
+  planningPoint?: string;
+  planningPointEn?: string;
 }
 
 // 크루 멤버
@@ -37,6 +45,8 @@ export interface ServiceItem {
   icon: string;
   labelKo: string;
   labelEn: string;
+  descKo?: string;
+  descEn?: string;
 }
 
 // PlanningHUB 기능

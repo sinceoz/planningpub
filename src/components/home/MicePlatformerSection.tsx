@@ -4,9 +4,9 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import SectionLabel from '@/components/ui/SectionLabel';
 import GlassCard from '@/components/ui/GlassCard';
-import { Layers, MessageCircle, Archive, BarChart3 } from 'lucide-react';
+import { Layers, ListChecks, FolderTree, Database } from 'lucide-react';
 
-const ICONS = [Layers, MessageCircle, Archive, BarChart3];
+const ICONS = [Layers, ListChecks, FolderTree, Database];
 const CARD_KEYS = ['platform', 'communication', 'archive', 'data'] as const;
 const COLORS = ['brand-purple', 'brand-mint', 'brand-purple', 'brand-mint'];
 

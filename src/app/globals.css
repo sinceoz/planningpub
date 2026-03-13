@@ -129,6 +129,19 @@ body::before {
   background-clip: text;
 }
 
+/* 히어로 그라디언트 텍스트 — 더 넓은 각도, 강한 대비 */
+.hero-gradient-text {
+  background: linear-gradient(
+    105deg,
+    var(--color-brand-purple-light) 0%,
+    var(--color-brand-mint) 50%,
+    var(--color-brand-mint-light) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* 그라디언트 보더 */
 .gradient-border {
   position: relative;
