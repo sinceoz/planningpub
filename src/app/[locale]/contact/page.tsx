@@ -1,4 +1,15 @@
+import type { Metadata } from 'next';
 import { useTranslations } from 'next-intl';
+
+export const metadata: Metadata = {
+  title: '프로젝트 문의 - Contact',
+  description:
+    'MICE 행사 기획 문의. 컨벤션, 전시회, 컨퍼런스, 페스티벌, 온라인 행사 등 프로젝트에 대해 상담해 드립니다. 24시간 내 회신.',
+  openGraph: {
+    title: 'PlanningPub 프로젝트 문의',
+    description: 'MICE 행사 기획 상담. 24시간 내 회신드립니다.',
+  },
+};
 import SectionLabel from '@/components/ui/SectionLabel';
 import ContactForm from '@/components/contact/ContactForm';
 import ContactInfo from '@/components/contact/ContactInfo';

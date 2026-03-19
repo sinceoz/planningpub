@@ -16,8 +16,7 @@ interface SendContactEmailParams {
 export async function sendContactEmail(params: SendContactEmailParams) {
   const { name, organization, email, projectName, date, details, budget } = params;
 
-  // 도메인 인증 전에는 onboarding@resend.dev 사용
-  const from = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+  const from = 'PlanningPub <info@planningpub.com>';
   const to = 'info@planningpub.com';
 
   const htmlContent = `

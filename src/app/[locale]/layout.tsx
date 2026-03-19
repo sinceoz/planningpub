@@ -31,6 +31,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <head>
+        <meta name="naver-site-verification" content="e9f9142824e9dd06e861cc7c8fc5e0787bf4350d" />
         {/* Pretendard CDN */}
         <link
           rel="stylesheet"
@@ -44,6 +45,45 @@ export default async function LocaleLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap"
           rel="stylesheet"
+        />
+        {/* JSON-LD 구조화 데이터 */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'PlanningPub',
+              alternateName: '(주)플래닝펍',
+              url: 'https://planningpub.com',
+              logo: 'https://planningpub.com/icon.png',
+              description:
+                'MICE 산업의 디지털 전환을 이끄는 행사 기획 전문 플랫폼',
+              address: {
+                '@type': 'PostalAddress',
+                streetAddress: '서초대로 131 로고스빌딩 6층',
+                addressLocality: '서초구',
+                addressRegion: '서울',
+                addressCountry: 'KR',
+              },
+              telephone: '+82-2-2066-8528',
+              email: 'info@planningpub.com',
+              sameAs: [
+                'https://www.instagram.com/planningpub',
+                'https://www.youtube.com/@planningpub',
+                'https://www.linkedin.com/company/planningpub',
+                'https://blog.naver.com/planningpub',
+              ],
+              serviceType: [
+                'Convention',
+                'Exhibition',
+                'Conference',
+                'Festival',
+                'Online Event',
+                'Metaverse Event',
+              ],
+            }),
+          }}
         />
       </head>
       <body
