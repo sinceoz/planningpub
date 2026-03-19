@@ -32,6 +32,7 @@ export default async function LocaleLayout({
     <html lang={locale} suppressHydrationWarning>
       <head>
         <meta name="naver-site-verification" content="e9f9142824e9dd06e861cc7c8fc5e0787bf4350d" />
+        <meta name="google-site-verification" content="shev-hZNlJgxz4GZwIIjCPhPG90gtAA_PEc8N1kzZcY" />
         {/* Pretendard CDN */}
         <link
           rel="stylesheet"

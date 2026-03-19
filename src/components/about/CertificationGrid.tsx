@@ -1,10 +1,20 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import SectionLabel from '@/components/ui/SectionLabel';
 
-const PARTNERS = [
+interface Partner {
+  id: string;
+  name: string;
+  logoUrl: string;
+  order: number;
+}
+
+const FALLBACK_PARTNERS = [
   '한국관광공사',
   '한국청소년활동진흥원',
   '소상공인시장진흥공단',
@@ -28,6 +38,34 @@ const PARTNERS = [
 
 export default function CertificationGrid() {
   const t = useTranslations('about.certification');
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const q = query(collection(db, 'partners'), orderBy('order'));
+        const snapshot = await Promise.race([
+          getDocs(q),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('timeout')), 5000),
+          ),
+        ]);
+        if (!snapshot.empty) {
+          setPartners(
+            snapshot.docs.map((d) => ({ ...d.data(), id: d.id }) as Partner),
+          );
+        }
+      } catch {
+        // Firestore unavailable — fallback renders below
+      }
+      setLoaded(true);
+    }
+    load();
+  }, []);
+
+  // Use Firestore data if available, otherwise fallback
+  const hasFirestoreData = partners.length > 0;
 
   return (
     <section className="py-24 px-6">
@@ -43,20 +81,43 @@ export default function CertificationGrid() {
         </motion.h2>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {PARTNERS.map((name, i) => (
-            <motion.div
-              key={name}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.03 }}
-              className="flex items-center justify-center px-4 py-5 rounded-xl border border-border-default bg-bg-surface hover:bg-bg-surface-hover hover:border-brand-mint/20 transition-colors"
-            >
-              <span className="text-sm text-text-muted text-center leading-snug">
-                {name}
-              </span>
-            </motion.div>
-          ))}
+          {hasFirestoreData
+            ? partners.map((partner, i) => (
+                <motion.div
+                  key={partner.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.03 }}
+                  className="flex flex-col items-center justify-center px-4 py-5 rounded-xl border border-border-default bg-bg-surface hover:bg-bg-surface-hover hover:border-brand-mint/20 transition-colors gap-2"
+                >
+                  {partner.logoUrl && (
+                    <img
+                      src={partner.logoUrl}
+                      alt={partner.name}
+                      className="w-16 h-16 object-contain"
+                    />
+                  )}
+                  <span className="text-sm text-text-muted text-center leading-snug">
+                    {partner.name}
+                  </span>
+                </motion.div>
+              ))
+            : loaded &&
+              FALLBACK_PARTNERS.map((name, i) => (
+                <motion.div
+                  key={name}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.03 }}
+                  className="flex items-center justify-center px-4 py-5 rounded-xl border border-border-default bg-bg-surface hover:bg-bg-surface-hover hover:border-brand-mint/20 transition-colors"
+                >
+                  <span className="text-sm text-text-muted text-center leading-snug">
+                    {name}
+                  </span>
+                </motion.div>
+              ))}
         </div>
       </div>
     </section>
