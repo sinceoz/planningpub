@@ -36,6 +36,28 @@ interface Partner {
 const COLLECTION = 'partners';
 const LOGO_MAX_DIM = 400;
 
+const INITIAL_PARTNERS = [
+  '한국관광공사',
+  '한국청소년활동진흥원',
+  '소상공인시장진흥공단',
+  '한국정신문화재단',
+  'N15 PARTNERS',
+  '우리다문화장학재단',
+  '인공지능산업융합사업단',
+  '연합뉴스',
+  '한국청소년정책연구원',
+  '가재울청소년센터',
+  '경상북도콘텐츠진흥원',
+  '오산교육재단',
+  '경남창조경제혁신센터',
+  '경기도마을공동체지원센터',
+  '한국국학진흥원',
+  '아동권리보장원',
+  '경기도사회적경제원',
+  '재외동포청',
+  '미주한인상공회의소 총연합회',
+];
+
 function resizeLogo(file: File, maxDim: number): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -91,11 +113,27 @@ export default function AdminPartners() {
           setTimeout(() => reject(new Error('timeout')), 5000),
         ),
       ]);
-      const data = snapshot.docs.map((d) => ({
-        ...d.data(),
-        id: d.id,
-      })) as Partner[];
-      setPartners(data);
+      if (!snapshot.empty) {
+        const data = snapshot.docs.map((d) => ({
+          ...d.data(),
+          id: d.id,
+        })) as Partner[];
+        setPartners(data);
+      } else {
+        // Firestore empty — seed with initial partners
+        const batch = writeBatch(db);
+        const colRef = collection(db, COLLECTION);
+        for (let i = 0; i < INITIAL_PARTNERS.length; i++) {
+          const docRef = doc(colRef);
+          batch.set(docRef, { name: INITIAL_PARTNERS[i], logoUrl: '', order: i });
+        }
+        await batch.commit();
+        // Re-read to get IDs
+        const seeded = await getDocs(query(colRef, orderBy('order')));
+        setPartners(
+          seeded.docs.map((d) => ({ ...d.data(), id: d.id }) as Partner),
+        );
+      }
     } catch {
       setPartners([]);
     }
