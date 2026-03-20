@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
         destination: '/ko/portfolio',
         permanent: true,
       },
+      {
+        source: '/projects-2/:path*',
+        destination: '/ko/portfolio',
+        permanent: true,
+      },
     ];
   },
   images: {
