@@ -34,7 +34,12 @@ src/app/[locale]/puby/dashboard/page.tsx        # Dashboard placeholder
 src/app/[locale]/puby/schedule/page.tsx         # Team board placeholder
 src/app/[locale]/puby/schedule/my/page.tsx      # My tasks placeholder
 src/app/[locale]/puby/expense/page.tsx          # Expense list placeholder
+src/app/[locale]/puby/expense/new/labor/page.tsx # Labor form placeholder
+src/app/[locale]/puby/expense/new/vendor/page.tsx # Vendor form placeholder
+src/app/[locale]/puby/expense/new/card/page.tsx  # Card form placeholder
 src/app/[locale]/puby/admin/page.tsx            # Admin placeholder
+src/app/[locale]/puby/admin/projects/page.tsx   # Projects placeholder
+src/app/[locale]/puby/admin/settings/page.tsx   # Settings placeholder
 src/app/api/puby/invite/route.ts                # Server Action: send invite email
 src/app/api/puby/invite/validate/route.ts       # Server Action: validate token + create user
 src/app/api/puby/admin/seed/route.ts            # One-time admin seed endpoint
@@ -290,9 +295,8 @@ const serviceAccount: ServiceAccount = {
   privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
 };
 
-const adminApp = getApps().length === 0
-  ? initializeApp({ credential: cert(serviceAccount) })
-  : getApps()[0];
+const adminApp = getApps().find(a => a.name === 'puby-admin')
+  ?? initializeApp({ credential: cert(serviceAccount) }, 'puby-admin');
 
 export const adminAuth = getAuth(adminApp);
 export const adminDb = getFirestore(adminApp);
@@ -507,17 +511,19 @@ export default function PubyAuthProvider({ children }: { children: ReactNode }) 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setPersistence(auth, browserLocalPersistence);
+    let unsubAuth: (() => void) | undefined;
 
-    const unsubAuth = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
-      if (!user) {
-        setPubyUser(null);
-        setLoading(false);
-      }
+    setPersistence(auth, browserLocalPersistence).then(() => {
+      unsubAuth = onAuthStateChanged(auth, (user) => {
+        setFirebaseUser(user);
+        if (!user) {
+          setPubyUser(null);
+          setLoading(false);
+        }
+      });
     });
 
-    return unsubAuth;
+    return () => unsubAuth?.();
   }, []);
 
   // Listen to puby_users document when firebase user is set
@@ -875,6 +881,7 @@ export default function InviteForm({ token, locale }: InviteFormProps) {
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -915,7 +922,7 @@ export default function InviteForm({ token, locale }: InviteFormProps) {
         return;
       }
 
-      router.push('/puby');
+      setSucceeded(true);
     } catch {
       setError(t('invalid'));
     } finally {
@@ -924,6 +931,18 @@ export default function InviteForm({ token, locale }: InviteFormProps) {
   }
 
   if (loading) return <div className="text-center text-text-muted">Loading...</div>;
+
+  if (succeeded) {
+    return (
+      <div className="w-full max-w-sm mx-auto text-center">
+        <p className="text-lg text-green-400 mb-4">{t('success')}</p>
+        <a href={`/${locale}/puby`} className="text-brand-purple hover:underline">
+          로그인하기
+        </a>
+      </div>
+    );
+  }
+
   if (error && !inviteData) {
     return <div className="text-center text-red-400 text-lg">{error}</div>;
   }
@@ -1264,6 +1283,7 @@ git commit -m "feat(puby): add sidebar, header, and mobile nav components"
 // src/app/[locale]/puby/layout.tsx
 'use client';
 
+import { Suspense } from 'react';
 import { usePathname } from '@/i18n/routing';
 import PubyAuthProvider from '@/components/puby/auth/PubyAuthProvider';
 import PubySidebar from '@/components/puby/layout/PubySidebar';
@@ -1326,7 +1346,13 @@ function PubyLayoutInner({ children }: { children: React.ReactNode }) {
 export default function PubyLayout({ children }: { children: React.ReactNode }) {
   return (
     <PubyAuthProvider>
-      <PubyLayoutInner>{children}</PubyLayoutInner>
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-[calc(100vh-64px)]">
+          <div className="animate-spin w-8 h-8 border-2 border-brand-purple border-t-transparent rounded-full" />
+        </div>
+      }>
+        <PubyLayoutInner>{children}</PubyLayoutInner>
+      </Suspense>
     </PubyAuthProvider>
   );
 }
@@ -1338,16 +1364,20 @@ export default function PubyLayout({ children }: { children: React.ReactNode }) 
 // src/app/[locale]/puby/page.tsx
 'use client';
 
+import { useEffect } from 'react';
 import LoginForm from '@/components/puby/auth/LoginForm';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
-import { redirect } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 
 export default function PubyLoginPage() {
   const { pubyUser, loading } = usePubyAuth();
+  const router = useRouter();
 
-  if (!loading && pubyUser) {
-    redirect('/puby/dashboard');
-  }
+  useEffect(() => {
+    if (!loading && pubyUser) {
+      router.push('/puby/dashboard');
+    }
+  }, [loading, pubyUser, router]);
 
   return <LoginForm />;
 }
@@ -1419,23 +1449,75 @@ export default function ExpenseListPage() {
 ```typescript
 // src/app/[locale]/puby/admin/page.tsx
 'use client';
+import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
-import { redirect } from 'next/navigation';
+import { useRouter } from '@/i18n/routing';
 
 export default function AdminPage() {
   const t = useTranslations('puby.sidebar');
   const { pubyUser } = usePubyAuth();
+  const router = useRouter();
 
-  if (pubyUser?.role !== 'admin') {
-    redirect('/puby/dashboard');
-  }
+  useEffect(() => {
+    if (pubyUser && pubyUser.role !== 'admin') {
+      router.push('/puby/dashboard');
+    }
+  }, [pubyUser, router]);
+
+  if (pubyUser?.role !== 'admin') return null;
 
   return <h1 className="text-2xl font-bold">{t('employees')}</h1>;
 }
 ```
 
-- [ ] **Step 5: Modify locale layout to hide Footer/FloatingContact for PUBY**
+- [ ] **Step 5: Create remaining placeholder pages (expense/new/*, admin/*)**
+
+```typescript
+// src/app/[locale]/puby/expense/new/labor/page.tsx
+'use client';
+export default function LaborFormPage() {
+  return <h1 className="text-2xl font-bold">인건비 결의서</h1>;
+}
+```
+
+```typescript
+// src/app/[locale]/puby/expense/new/vendor/page.tsx
+'use client';
+export default function VendorFormPage() {
+  return <h1 className="text-2xl font-bold">업체 결의서</h1>;
+}
+```
+
+```typescript
+// src/app/[locale]/puby/expense/new/card/page.tsx
+'use client';
+export default function CardFormPage() {
+  return <h1 className="text-2xl font-bold">카드 결의서</h1>;
+}
+```
+
+```typescript
+// src/app/[locale]/puby/admin/projects/page.tsx
+'use client';
+import { useTranslations } from 'next-intl';
+export default function ProjectsPage() {
+  const t = useTranslations('puby.sidebar');
+  return <h1 className="text-2xl font-bold">{t('projects')}</h1>;
+}
+```
+
+```typescript
+// src/app/[locale]/puby/admin/settings/page.tsx
+'use client';
+import { useTranslations } from 'next-intl';
+export default function SettingsPage() {
+  const t = useTranslations('puby.sidebar');
+  return <h1 className="text-2xl font-bold">{t('settings')}</h1>;
+}
+```
+
+- [ ] **Step 6: Modify locale layout to hide Footer/FloatingContact for PUBY**
 
 In `src/app/[locale]/layout.tsx`, the layout needs to detect when the path is under `/puby` and hide Footer and FloatingContact. Since this is a server component, we need to use the `params` and check the path. However, the layout doesn't know the full path — only nested segments do. The cleanest approach is to use a client wrapper or pass a flag.
 
@@ -1456,6 +1538,8 @@ Create `src/components/layout/ConditionalFooter.tsx`:
 // src/components/layout/ConditionalFooter.tsx
 'use client';
 
+// Using next/navigation intentionally — need the raw pathname with locale prefix
+// to detect /puby routes regardless of locale (e.g., /ko/puby, /en/puby)
 import { usePathname } from 'next/navigation';
 import Footer from './Footer';
 import FloatingContact from '@/components/floating/FloatingContact';
@@ -1479,11 +1563,11 @@ Then update `src/app/[locale]/layout.tsx` to use it:
 - Remove direct `<Footer />` and `<FloatingContact />` imports/usage
 - Replace with `<ConditionalFooter />`
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add src/app/[locale]/puby/ src/components/layout/ConditionalFooter.tsx src/app/[locale]/layout.tsx
-git commit -m "feat(puby): add PUBY layout, route pages, and conditional footer"
+git commit -m "feat(puby): add PUBY layout, all route pages, and conditional footer"
 ```
 
 ---
@@ -1635,6 +1719,12 @@ import { adminAuth, adminDb } from '@/lib/puby/firebase-admin';
 import { Timestamp } from 'firebase-admin/firestore';
 
 export async function POST(req: NextRequest) {
+  // Check secret first — fail fast
+  const seedSecret = req.headers.get('X-Seed-Secret');
+  if (seedSecret !== process.env.PUBY_SEED_SECRET) {
+    return NextResponse.json({ error: 'Invalid seed secret' }, { status: 403 });
+  }
+
   // Only allow if no admin exists yet
   const existingAdmins = await adminDb.collection('puby_users')
     .where('role', '==', 'admin')
@@ -1646,11 +1736,6 @@ export async function POST(req: NextRequest) {
   }
 
   const { email, password, displayName } = await req.json();
-  const seedSecret = req.headers.get('X-Seed-Secret');
-
-  if (seedSecret !== process.env.PUBY_SEED_SECRET) {
-    return NextResponse.json({ error: 'Invalid seed secret' }, { status: 403 });
-  }
 
   try {
     const user = await adminAuth.createUser({ email, password, displayName });
