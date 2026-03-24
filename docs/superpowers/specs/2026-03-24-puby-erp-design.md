@@ -497,7 +497,9 @@ match /puby_tasks/{taskId} {
 // puby_expenses: read own or admin/assigned-manager, write with status constraints
 match /puby_expenses/{expenseId} {
   allow read: if request.auth.uid == resource.data.createdBy || isAdmin() || isAssignedManager();
-  allow create: if isPubyUser();
+  allow create: if isPubyUser()
+                   && request.resource.data.status == 'draft'
+                   && request.resource.data.createdBy == request.auth.uid;
   // Owner can update only draft/rejected expenses (editing before re-submit)
   allow update: if (request.auth.uid == resource.data.createdBy
                      && resource.data.status in ['draft', 'rejected'])
@@ -516,10 +518,11 @@ match /puby_expenses/{expenseId} {
                    && resource.data.status == 'draft';
 }
 
-// puby_notifications: read/write own
+// puby_notifications: read/update own, create via Server Actions only
 match /puby_notifications/{notifId} {
   allow read, update: if request.auth.uid == resource.data.userId;
-  allow create: if isPubyUser();
+  // No client-side create — notifications are created server-side
+  // via Server Actions or Cloud Functions using Firebase Admin SDK
 }
 
 // puby_invitations: client-side access restricted to admin
@@ -543,6 +546,24 @@ match /puby_settings/{settingId} {
 
 ### Helper Functions
 
-- `isPubyUser()`: caller has a document in `puby_users`
-- `isAdmin()`: `isPubyUser()` && role == 'admin'
-- `isAssignedManager()`: `isPubyUser()` && caller is `managerId` on the expense's project
+```
+function getPubyUser() {
+  return get(/databases/$(database)/documents/puby_users/$(request.auth.uid));
+}
+
+function isPubyUser() {
+  return request.auth != null && exists(/databases/$(database)/documents/puby_users/$(request.auth.uid));
+}
+
+function isAdmin() {
+  return request.auth != null && getPubyUser().data.role == 'admin';
+}
+
+function isAssignedManager() {
+  // Caller is the managerId on the expense's linked project
+  return request.auth != null
+    && get(/databases/$(database)/documents/puby_projects/$(resource.data.projectId)).data.managerId == request.auth.uid;
+}
+```
+
+Note: `isPubyUser()` uses `exists()` (cheaper, presence-only check). `isAdmin()` and `isAssignedManager()` use `get()` since they need field values. Firestore deduplicates `get()` calls to the same path within a single rule evaluation.
