@@ -207,6 +207,34 @@
       "delete": "Delete",
       "edit": "Edit",
       "confirm": "Confirm"
+    },
+    "schedule": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "addTask": "Add Task",
+      "editTask": "Edit Task",
+      "title": "Title",
+      "description": "Description (optional)",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "category": "Category",
+      "noTasks": "No tasks registered.",
+      "completed": "Done",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this task?",
+      "teamBoard": "Team Schedule",
+      "myTasks": "My Tasks",
+      "loading": "Loading...",
+      "filterDept": "Department",
+      "filterAll": "All",
+      "categories": {
+        "deepwork": "Deep Work",
+        "meeting": "Meeting",
+        "admin": "Admin",
+        "travel": "Travel",
+        "fieldwork": "Fieldwork",
+        "other": "Other"
+      }
     }
   }
 }
