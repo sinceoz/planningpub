@@ -1,4 +1,4 @@
-import { initializeApp, getApps, cert, type ServiceAccount, type App } from 'firebase-admin/app';
+import { initializeApp, getApps, applicationDefault, cert, type ServiceAccount, type App } from 'firebase-admin/app';
 import { getAuth, type Auth } from 'firebase-admin/auth';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 
@@ -6,17 +6,21 @@ function getAdminApp(): App {
   const existing = getApps().find(a => a.name === 'puby-admin');
   if (existing) return existing;
 
-  const serviceAccount: ServiceAccount = {
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  };
-
-  if (!serviceAccount.projectId) {
-    throw new Error('FIREBASE_PROJECT_ID environment variable is required for Firebase Admin SDK');
+  // If service account key is provided, use it (production)
+  if (process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) {
+    const serviceAccount: ServiceAccount = {
+      projectId: process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    };
+    return initializeApp({ credential: cert(serviceAccount) }, 'puby-admin');
   }
 
-  return initializeApp({ credential: cert(serviceAccount) }, 'puby-admin');
+  // Otherwise use Application Default Credentials (local dev with gcloud auth)
+  return initializeApp({
+    credential: applicationDefault(),
+    projectId: process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  }, 'puby-admin');
 }
 
 let _adminAuth: Auth | undefined;
