@@ -8,7 +8,8 @@
     "portfolio": "Portfolio",
     "contact": "Contact",
     "planninghub": "PlanningHUB",
-    "inquiry": "문의하기"
+    "inquiry": "문의하기",
+    "puby": "PUBY"
   },
   "hero": {
     "headline1": "행사는 소비되고,",
@@ -156,5 +157,56 @@
     "copyright": "© 2025 PlanningPub Inc. All rights reserved.",
     "privacy": "개인정보처리방침",
     "terms": "이용약관"
+  },
+  "puby": {
+    "login": {
+      "title": "PUBY 로그인",
+      "email": "이메일",
+      "password": "비밀번호",
+      "submit": "로그인",
+      "error": "이메일 또는 비밀번호가 올바르지 않습니다.",
+      "noAccount": "계정이 없으신가요? 관리자에게 초대를 요청하세요."
+    },
+    "invite": {
+      "title": "PUBY 가입",
+      "displayName": "이름",
+      "password": "비밀번호",
+      "passwordConfirm": "비밀번호 확인",
+      "submit": "가입하기",
+      "expired": "초대 링크가 만료되었습니다.",
+      "invalid": "유효하지 않은 초대 링크입니다.",
+      "used": "이미 사용된 초대 링크입니다.",
+      "success": "가입이 완료되었습니다. 로그인해주세요."
+    },
+    "sidebar": {
+      "dashboard": "대시보드",
+      "schedule": "시간관리",
+      "teamBoard": "전체 스케줄",
+      "myTasks": "내 할일",
+      "expense": "지출결의",
+      "expenseList": "결의 목록",
+      "newExpense": "새 결의서",
+      "admin": "관리",
+      "employees": "직원 관리",
+      "projects": "프로젝트 관리",
+      "settings": "설정"
+    },
+    "header": {
+      "notifications": "알림",
+      "theme": "테마 전환",
+      "logout": "로그아웃"
+    },
+    "dashboard": {
+      "title": "대시보드"
+    },
+    "common": {
+      "loading": "로딩 중...",
+      "error": "오류가 발생했습니다.",
+      "save": "저장",
+      "cancel": "취소",
+      "delete": "삭제",
+      "edit": "수정",
+      "confirm": "확인"
+    }
   }
 }

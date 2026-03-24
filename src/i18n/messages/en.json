@@ -8,7 +8,8 @@
     "portfolio": "Portfolio",
     "contact": "Contact",
     "planninghub": "PlanningHUB",
-    "inquiry": "Inquiry"
+    "inquiry": "Inquiry",
+    "puby": "PUBY"
   },
   "hero": {
     "headline1": "Events are consumed,",
@@ -156,5 +157,56 @@
     "copyright": "© 2025 PlanningPub Inc. All rights reserved.",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service"
+  },
+  "puby": {
+    "login": {
+      "title": "PUBY Login",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign In",
+      "error": "Invalid email or password.",
+      "noAccount": "No account? Ask your admin for an invitation."
+    },
+    "invite": {
+      "title": "Join PUBY",
+      "displayName": "Name",
+      "password": "Password",
+      "passwordConfirm": "Confirm Password",
+      "submit": "Create Account",
+      "expired": "This invite link has expired.",
+      "invalid": "Invalid invite link.",
+      "used": "This invite link has already been used.",
+      "success": "Account created. Please sign in."
+    },
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "schedule": "Schedule",
+      "teamBoard": "Team Board",
+      "myTasks": "My Tasks",
+      "expense": "Expenses",
+      "expenseList": "Expense List",
+      "newExpense": "New Expense",
+      "admin": "Admin",
+      "employees": "Employees",
+      "projects": "Projects",
+      "settings": "Settings"
+    },
+    "header": {
+      "notifications": "Notifications",
+      "theme": "Toggle Theme",
+      "logout": "Sign Out"
+    },
+    "dashboard": {
+      "title": "Dashboard"
+    },
+    "common": {
+      "loading": "Loading...",
+      "error": "An error occurred.",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "confirm": "Confirm"
+    }
   }
 }
