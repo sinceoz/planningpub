@@ -30,7 +30,9 @@ const NAV_ITEMS: NavItem[] = [
     href: '/puby/expense', icon: Receipt, labelKey: 'expense',
     children: [
       { href: '/puby/expense', labelKey: 'expenseList' },
-      { href: '/puby/expense/new/labor', labelKey: 'newExpense' },
+      { href: '/puby/expense/new/labor', labelKey: 'newLabor' },
+      { href: '/puby/expense/new/vendor', labelKey: 'newVendor' },
+      { href: '/puby/expense/new/card', labelKey: 'newCard' },
     ],
   },
   {

@@ -90,49 +90,37 @@ export default function TaskForm({ onSubmit, onClose, editingTask, onUpdate }: T
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm text-text-muted mb-1">{t('startTime')}</label>
-              <div className="flex gap-1">
-                <select
-                  value={startTime.split(':')[0]}
-                  onChange={(e) => setStartTime(`${e.target.value}:${startTime.split(':')[1] || '00'}`)}
-                  className="flex-1 px-2 py-2 rounded-lg bg-surface-secondary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm"
-                >
-                  {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map((h) => (
-                    <option key={h} value={h}>{h}시</option>
-                  ))}
-                </select>
-                <select
-                  value={startTime.split(':')[1] || '00'}
-                  onChange={(e) => setStartTime(`${startTime.split(':')[0]}:${e.target.value}`)}
-                  className="flex-1 px-2 py-2 rounded-lg bg-surface-secondary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm"
-                >
-                  {['00', '15', '30', '45'].map((m) => (
-                    <option key={m} value={m}>{m}분</option>
-                  ))}
-                </select>
-              </div>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={startTime}
+                onChange={(e) => {
+                  let v = e.target.value.replace(/[^\d:]/g, '');
+                  if (v.length === 2 && !v.includes(':') && !startTime.includes(':')) v += ':';
+                  setStartTime(v.slice(0, 5));
+                }}
+                placeholder="09:00"
+                required
+                pattern="[0-2][0-9]:[0-5][0-9]"
+                className="w-full px-3 py-2 rounded-lg bg-surface-secondary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm font-mono"
+              />
             </div>
             <div>
               <label className="block text-sm text-text-muted mb-1">{t('endTime')}</label>
-              <div className="flex gap-1">
-                <select
-                  value={endTime.split(':')[0]}
-                  onChange={(e) => setEndTime(`${e.target.value}:${endTime.split(':')[1] || '00'}`)}
-                  className="flex-1 px-2 py-2 rounded-lg bg-surface-secondary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm"
-                >
-                  {Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')).map((h) => (
-                    <option key={h} value={h}>{h}시</option>
-                  ))}
-                </select>
-                <select
-                  value={endTime.split(':')[1] || '00'}
-                  onChange={(e) => setEndTime(`${endTime.split(':')[0]}:${e.target.value}`)}
-                  className="flex-1 px-2 py-2 rounded-lg bg-surface-secondary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm"
-                >
-                  {['00', '15', '30', '45'].map((m) => (
-                    <option key={m} value={m}>{m}분</option>
-                  ))}
-                </select>
-              </div>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={endTime}
+                onChange={(e) => {
+                  let v = e.target.value.replace(/[^\d:]/g, '');
+                  if (v.length === 2 && !v.includes(':') && !endTime.includes(':')) v += ':';
+                  setEndTime(v.slice(0, 5));
+                }}
+                placeholder="10:00"
+                required
+                pattern="[0-2][0-9]:[0-5][0-9]"
+                className="w-full px-3 py-2 rounded-lg bg-surface-secondary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm font-mono"
+              />
             </div>
           </div>
 
