@@ -1,9 +1,80 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
+    // Existing collections — keep open for now
+    match /portfolios/{document=**} {
       allow read: if true;
       allow write: if true;
+    }
+    match /partners/{document=**} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // === PUBY ERP Rules ===
+
+    function getPubyUser() {
+      return get(/databases/$(database)/documents/puby_users/$(request.auth.uid));
+    }
+
+    function isPubyUser() {
+      return request.auth != null && exists(/databases/$(database)/documents/puby_users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return request.auth != null && getPubyUser().data.role == 'admin';
+    }
+
+    function isAssignedManager() {
+      return request.auth != null
+        && get(/databases/$(database)/documents/puby_projects/$(resource.data.projectId)).data.managerId == request.auth.uid;
+    }
+
+    match /puby_users/{uid} {
+      allow read: if isPubyUser();
+      allow write: if isAdmin();
+    }
+
+    match /puby_tasks/{taskId} {
+      allow read: if isPubyUser();
+      allow create: if request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth.uid == resource.data.userId;
+    }
+
+    match /puby_expenses/{expenseId} {
+      allow read: if request.auth.uid == resource.data.createdBy || isAdmin() || isAssignedManager();
+      allow create: if isPubyUser()
+                       && request.resource.data.status == 'draft'
+                       && request.resource.data.createdBy == request.auth.uid;
+      allow update: if (request.auth.uid == resource.data.createdBy
+                         && resource.data.status in ['draft', 'rejected'])
+                     || (isAssignedManager()
+                         && resource.data.status == 'submitted'
+                         && request.resource.data.status in ['manager_approved', 'rejected'])
+                     || (isAdmin()
+                         && ((resource.data.status == 'submitted' && request.resource.data.status in ['approved', 'rejected'])
+                             || (resource.data.status == 'manager_approved' && request.resource.data.status in ['approved', 'rejected'])
+                             || (resource.data.status == 'approved' && request.resource.data.status == 'completed')));
+      allow delete: if request.auth.uid == resource.data.createdBy
+                       && resource.data.status == 'draft';
+    }
+
+    match /puby_notifications/{notifId} {
+      allow read, update: if request.auth.uid == resource.data.userId;
+    }
+
+    match /puby_invitations/{inviteId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /puby_projects/{projectId} {
+      allow read: if isPubyUser();
+      allow write: if isAdmin();
+    }
+
+    match /puby_settings/{settingId} {
+      allow read: if isPubyUser();
+      allow write: if isAdmin();
     }
   }
 }
