@@ -4,7 +4,9 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { Resend } from 'resend';
 import crypto from 'crypto';
 
-const resend = new Resend(process.env.RESEND_API_KEY || '');
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY || '');
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,7 +40,7 @@ export async function POST(req: NextRequest) {
     });
 
     const inviteUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${locale || 'ko'}/puby/invite/${token}`;
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'PlanningPub <info@planningpub.com>',
       to: email,
       subject: '[PlanningPub] PUBY 초대',
