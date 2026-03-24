@@ -235,6 +235,105 @@
         "fieldwork": "Fieldwork",
         "other": "Other"
       }
+    },
+    "expense": {
+      "title": "Expenses",
+      "list": "Expense List",
+      "newExpense": "New Expense",
+      "labor": "Labor",
+      "vendor": "Vendor",
+      "card": "Card",
+      "amount": "Amount",
+      "taxDeduction": "Tax Deduction",
+      "netAmount": "Net Amount",
+      "project": "Project",
+      "status": "Status",
+      "creator": "Creator",
+      "date": "Date",
+      "noExpenses": "No expenses registered.",
+      "saveDraft": "Save Draft",
+      "submit": "Submit",
+      "approve": "Approve",
+      "reject": "Reject",
+      "complete": "Mark Complete",
+      "rejectionReason": "Rejection Reason",
+      "paymentDate": "Payment Date",
+      "paymentProof": "Payment Proof",
+      "approvalHistory": "Approval History",
+      "notifyByEmail": "Also notify by email",
+      "exportCsv": "Export CSV",
+      "filterAll": "All",
+      "filterProject": "Project",
+      "filterStatus": "Status",
+      "filterType": "Type",
+      "statuses": {
+        "draft": "Draft",
+        "submitted": "Submitted",
+        "manager_approved": "Manager Approved",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "completed": "Completed"
+      },
+      "laborForm": {
+        "title": "Labor Expense",
+        "name": "Name",
+        "residentId": "Resident ID",
+        "address": "Address",
+        "bankName": "Bank",
+        "accountNumber": "Account Number",
+        "accountHolder": "Account Holder",
+        "taxType": "Income Type",
+        "businessIncome": "Business Income (3.3%)",
+        "otherIncome": "Other Income (8.8%)",
+        "dailyLabor": "Daily Labor (2.7%)",
+        "dailyLaborNote": "For contracts of 10+ days only",
+        "workPeriod": "Work Period",
+        "workStart": "Start Date",
+        "workEnd": "End Date",
+        "workDescription": "Work Description"
+      },
+      "vendorForm": {
+        "title": "Vendor Expense",
+        "businessNumber": "Business Number",
+        "companyName": "Company Name",
+        "representative": "Representative",
+        "address": "Address",
+        "bankName": "Bank",
+        "accountNumber": "Account Number",
+        "accountHolder": "Account Holder",
+        "description": "Notes"
+      },
+      "cardForm": {
+        "title": "Card Expense",
+        "storeName": "Store",
+        "paymentDateTime": "Payment Date/Time",
+        "cardLastFour": "Last 4 Digits",
+        "description": "Description",
+        "reason": "Reason"
+      },
+      "files": {
+        "upload": "Upload File",
+        "dragDrop": "Drag & drop or click to upload",
+        "maxSize": "Max 10MB"
+      }
+    },
+    "projects": {
+      "title": "Project Management",
+      "addProject": "Add Project",
+      "editProject": "Edit Project",
+      "name": "Project Name",
+      "status": "Status",
+      "approvalFlow": "Approval Flow",
+      "twoStep": "Two-Step (Manager→Admin)",
+      "direct": "Direct (Admin)",
+      "manager": "First Approver",
+      "members": "Members",
+      "noProjects": "No projects registered.",
+      "statuses": {
+        "proposal": "Proposal",
+        "in_progress": "In Progress",
+        "completed": "Completed"
+      }
     }
   }
 }
