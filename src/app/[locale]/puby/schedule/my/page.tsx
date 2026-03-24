@@ -1,6 +1,6 @@
 'use client';
-import { useTranslations } from 'next-intl';
+import TaskList from '@/components/puby/schedule/TaskList';
+
 export default function MyTasksPage() {
-  const t = useTranslations('puby.sidebar');
-  return <h1 className="text-2xl font-bold">{t('myTasks')}</h1>;
+  return <TaskList />;
 }
