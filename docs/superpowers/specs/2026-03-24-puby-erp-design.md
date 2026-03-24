@@ -19,7 +19,7 @@ PUBY is an all-in-one ERP system for PlanningPub employees, integrated directly 
 ### Invite Flow
 1. Admin enters employee email + role + department in PUBY admin page
 2. System creates `puby_invitations` document with unique token (96-hour expiry)
-3. Invitation email sent via Resend with link: `/puby/invite/[token]`
+3. Invitation email sent via Resend with link: `/{locale}/puby/invite/[token]`
 4. Employee clicks link → sets display name + password → Firebase Auth account created
 5. `puby_users` document created with role/department from invitation
 6. Token marked as used
@@ -72,8 +72,10 @@ PUBY is an all-in-one ERP system for PlanningPub employees, integrated directly 
 ### Access Control
 - All `/puby/*` routes wrapped in `PubyAuthProvider`
 - Unauthenticated access → redirect to `/puby` (login page)
+- Exception: `/puby/invite/[token]` is accessible without auth (registration page)
 - Role-based UI: admin-only menus hidden from user/manager
 - Firestore rules enforce role-based read/write
+- Invite token validation uses a Next.js Server Action with Firebase Admin SDK (bypasses client-side Firestore rules)
 
 ---
 
@@ -165,6 +167,7 @@ PUBY is an all-in-one ERP system for PlanningPub employees, integrated directly 
 
 - `two_step`: submitted → manager_approved → approved → completed
 - `direct`: submitted → approved → completed
+- **Validation**: if `approvalFlow` is `two_step`, `managerId` is required. The project settings UI enforces this — selecting `two_step` shows a manager dropdown that must be filled.
 
 ### Expense Status Flow
 
@@ -174,6 +177,13 @@ draft → submitted → [manager_approved] → approved → completed
 ```
 
 Rejection can happen at either stage (manager or admin). Rejected expenses return to the creator for editing and re-submission.
+
+**Approval routing logic (on submission):**
+1. Read `puby_projects/{projectId}.approvalFlow`
+2. If `direct`: notify admin(s) only
+3. If `two_step`: notify `managerId` for first-stage approval
+4. After manager approves (`manager_approved`): notify admin(s) for final approval
+5. Fallback: if `two_step` but `managerId` is null (data integrity issue), treat as `direct`
 
 ### Data: `puby_expenses/{id}`
 ```
@@ -338,13 +348,17 @@ const NAV_ITEMS = [
 ```
 
 ### PUBY Internal Layout
-- Shared top Navbar from planningpub (consistent branding)
-- PUBY sidebar navigation (collapsible on mobile):
+- The `[locale]/layout.tsx` conditionally hides Footer and FloatingContact when the path starts with `/puby` — PUBY is an internal tool, not a customer-facing page
+- Shared top Navbar from planningpub (consistent branding, with PUBY link)
+- PUBY has its own nested layout (`app/[locale]/puby/layout.tsx`) providing:
+  - PubyAuthProvider (auth gate)
+  - PubySidebar (collapsible on mobile)
+  - PubyHeader (user info, notifications bell, theme toggle)
+- Sidebar navigation:
   - Dashboard
   - Schedule → Team Board / My Tasks
   - Expenses → List / New Expense
   - Admin (admin-only) → Employees / Projects / Settings
-- Dark/light theme toggle in PUBY header area
 - Mobile: bottom tab navigation or hamburger sidebar
 
 ### Theme
@@ -466,9 +480,10 @@ src/
 ## 10. Firestore Security Rules (PUBY)
 
 ```
-// puby_users: read own profile, admin reads all
+// puby_users: all puby users can read all profiles (needed for team board, expense details)
+// write restricted to admin (user profile updates go through Server Actions)
 match /puby_users/{uid} {
-  allow read: if request.auth.uid == uid || isAdmin();
+  allow read: if isPubyUser();
   allow write: if isAdmin();
 }
 
@@ -479,11 +494,26 @@ match /puby_tasks/{taskId} {
   allow update, delete: if request.auth.uid == resource.data.userId;
 }
 
-// puby_expenses: read own or admin/assigned-manager, write own drafts
+// puby_expenses: read own or admin/assigned-manager, write with status constraints
 match /puby_expenses/{expenseId} {
   allow read: if request.auth.uid == resource.data.createdBy || isAdmin() || isAssignedManager();
   allow create: if isPubyUser();
-  allow update: if canUpdateExpense();
+  // Owner can update only draft/rejected expenses (editing before re-submit)
+  allow update: if (request.auth.uid == resource.data.createdBy
+                     && resource.data.status in ['draft', 'rejected'])
+                 // Manager can: submitted → manager_approved or submitted → rejected
+                 || (isAssignedManager()
+                     && resource.data.status == 'submitted'
+                     && request.resource.data.status in ['manager_approved', 'rejected'])
+                 // Admin can: submitted → approved (direct), manager_approved → approved,
+                 //            approved → completed, any → rejected
+                 || (isAdmin()
+                     && ((resource.data.status == 'submitted' && request.resource.data.status in ['approved', 'rejected'])
+                         || (resource.data.status == 'manager_approved' && request.resource.data.status in ['approved', 'rejected'])
+                         || (resource.data.status == 'approved' && request.resource.data.status == 'completed')));
+  // Owner can delete own drafts only
+  allow delete: if request.auth.uid == resource.data.createdBy
+                   && resource.data.status == 'draft';
 }
 
 // puby_notifications: read/write own
@@ -492,7 +522,8 @@ match /puby_notifications/{notifId} {
   allow create: if isPubyUser();
 }
 
-// puby_invitations: admin only
+// puby_invitations: client-side access restricted to admin
+// Invite validation for unauthenticated users handled via Server Actions (Firebase Admin SDK)
 match /puby_invitations/{inviteId} {
   allow read, write: if isAdmin();
 }
@@ -510,4 +541,8 @@ match /puby_settings/{settingId} {
 }
 ```
 
-Helper functions (`isPubyUser`, `isAdmin`, `isAssignedManager`, `canUpdateExpense`) verify the caller exists in `puby_users` and has the appropriate role.
+### Helper Functions
+
+- `isPubyUser()`: caller has a document in `puby_users`
+- `isAdmin()`: `isPubyUser()` && role == 'admin'
+- `isAssignedManager()`: `isPubyUser()` && caller is `managerId` on the expense's project
