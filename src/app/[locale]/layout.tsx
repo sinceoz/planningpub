@@ -4,8 +4,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { Noto_Sans_KR } from 'next/font/google';
 import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import FloatingContact from '@/components/floating/FloatingContact';
+import ConditionalFooter from '@/components/layout/ConditionalFooter';
 
 const notoSansKr = Noto_Sans_KR({
   variable: '--font-noto-sans-kr',
@@ -96,8 +95,7 @@ export default async function LocaleLayout({
           <main className="min-h-[calc(100vh-160px)]">
             {children}
           </main>
-          <Footer />
-          <FloatingContact />
+          <ConditionalFooter />
         </NextIntlClientProvider>
       </body>
     </html>
