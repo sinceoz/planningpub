@@ -1,4 +1,3 @@
 'use client';
-export default function CardFormPage() {
-  return <h1 className="text-2xl font-bold">카드 결의서</h1>;
-}
+import CardForm from '@/components/puby/expense/CardForm';
+export default function CardFormPage() { return <CardForm />; }

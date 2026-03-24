@@ -1,4 +1,3 @@
 'use client';
-export default function VendorFormPage() {
-  return <h1 className="text-2xl font-bold">업체 결의서</h1>;
-}
+import VendorForm from '@/components/puby/expense/VendorForm';
+export default function VendorFormPage() { return <VendorForm />; }
