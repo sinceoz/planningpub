@@ -68,12 +68,7 @@ export default async function LocaleLayout({
               },
               telephone: '+82-2-2066-8528',
               email: 'info@planningpub.com',
-              sameAs: [
-                'https://www.instagram.com/planningpub',
-                'https://www.youtube.com/@planningpub',
-                'https://www.linkedin.com/company/planningpub',
-                'https://blog.naver.com/planningpub',
-              ],
+              sameAs: [],
               serviceType: [
                 'Convention',
                 'Exhibition',

@@ -2,8 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { COMPANY, SOCIAL_LINKS } from '@/lib/constants';
-import { Instagram, Youtube, Linkedin } from 'lucide-react';
+import { COMPANY } from '@/lib/constants';
+
 
 export default function Footer() {
   const t = useTranslations('footer');
@@ -41,21 +41,6 @@ export default function Footer() {
             <Link href="/planninghub" className="text-sm text-text-muted hover:text-brand-mint transition-colors">PlanningHUB</Link>
           </div>
 
-          {/* SNS */}
-          <div>
-            <h3 className="text-sm font-semibold text-text-primary mb-4">Follow Us</h3>
-            <div className="flex gap-3">
-              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" className="p-2 border border-border-default rounded-lg hover:border-brand-mint hover:text-brand-mint transition-colors">
-                <Instagram size={18} />
-              </a>
-              <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" className="p-2 border border-border-default rounded-lg hover:border-brand-mint hover:text-brand-mint transition-colors">
-                <Youtube size={18} />
-              </a>
-              <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 border border-border-default rounded-lg hover:border-brand-mint hover:text-brand-mint transition-colors">
-                <Linkedin size={18} />
-              </a>
-            </div>
-          </div>
         </div>
 
         {/* 하단 */}

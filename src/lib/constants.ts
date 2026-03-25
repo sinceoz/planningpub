@@ -17,13 +17,6 @@ export const COMPANY = {
   hoursEn: 'Mon-Fri 9:00 AM ~ 6:00 PM',
 } as const;
 
-// SNS 링크
-export const SOCIAL_LINKS = {
-  instagram: 'https://www.instagram.com/planningpub',
-  youtube: 'https://www.youtube.com/@planningpub',
-  blog: 'https://blog.naver.com/planningpub',
-  linkedin: 'https://www.linkedin.com/company/planningpub',
-} as const;
 
 // 서비스 카테고리 (9개)
 export const SERVICES = [

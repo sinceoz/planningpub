@@ -1,8 +1,8 @@
 'use client';
 
 import { useTranslations, useLocale } from 'next-intl';
-import { COMPANY, SOCIAL_LINKS } from '@/lib/constants';
-import { MapPin, Phone, Mail, Instagram, Youtube, Linkedin } from 'lucide-react';
+import { COMPANY } from '@/lib/constants';
+import { MapPin, Phone, Mail } from 'lucide-react';
 
 export default function ContactInfo() {
   const t = useTranslations('contact.info');
@@ -37,21 +37,6 @@ export default function ContactInfo() {
         );
       })}
 
-      {/* SNS */}
-      <div>
-        <p className="text-xs text-text-dim uppercase tracking-wider mb-3">{t('sns')}</p>
-        <div className="flex gap-3">
-          <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" className="p-2 border border-border-default rounded-lg hover:border-brand-mint hover:text-brand-mint transition-colors">
-            <Instagram size={18} />
-          </a>
-          <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" className="p-2 border border-border-default rounded-lg hover:border-brand-mint hover:text-brand-mint transition-colors">
-            <Youtube size={18} />
-          </a>
-          <a href={SOCIAL_LINKS.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 border border-border-default rounded-lg hover:border-brand-mint hover:text-brand-mint transition-colors">
-            <Linkedin size={18} />
-          </a>
-        </div>
-      </div>
 
       {/* 지도 (구글맵 임베드) */}
       <div className="rounded-xl overflow-hidden border border-border-default aspect-video">
