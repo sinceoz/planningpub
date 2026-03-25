@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, type ChangeEvent } from 'react';
+import { useState, useRef, useCallback, type ChangeEvent, type DragEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
@@ -17,16 +17,14 @@ export default function FileUpload({ files, onChange, storagePath }: FileUploadP
   const t = useTranslations('puby.expense.files');
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
 
-  async function handleFiles(e: ChangeEvent<HTMLInputElement>) {
-    const selected = e.target.files;
-    if (!selected) return;
+  const uploadFiles = useCallback(async (fileList: FileList) => {
     setUploading(true);
-
     try {
       const newFiles: ExpenseFile[] = [];
-      for (const file of Array.from(selected)) {
-        if (file.size > 10 * 1024 * 1024) continue; // skip > 10MB
+      for (const file of Array.from(fileList)) {
+        if (file.size > 10 * 1024 * 1024) continue;
         const storageRef = ref(storage, `${storagePath}/${Date.now()}-${file.name}`);
         await uploadBytes(storageRef, file);
         const url = await getDownloadURL(storageRef);
@@ -37,6 +35,27 @@ export default function FileUpload({ files, onChange, storagePath }: FileUploadP
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
     }
+  }, [files, onChange, storagePath]);
+
+  function handleFiles(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target.files) uploadFiles(e.target.files);
+  }
+
+  const handleDrop = useCallback((e: DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer.files.length > 0) {
+      uploadFiles(e.dataTransfer.files);
+    }
+  }, [uploadFiles]);
+
+  function handleDragOver(e: DragEvent) {
+    e.preventDefault();
+    setDragOver(true);
+  }
+
+  function handleDragLeave() {
+    setDragOver(false);
   }
 
   function removeFile(index: number) {
@@ -47,7 +66,14 @@ export default function FileUpload({ files, onChange, storagePath }: FileUploadP
     <div>
       <div
         onClick={() => inputRef.current?.click()}
-        className="border-2 border-dashed border-border-default rounded-lg p-6 text-center cursor-pointer hover:border-brand-purple/50 transition-colors"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+          dragOver
+            ? 'border-brand-purple bg-brand-purple/5'
+            : 'border-border-default hover:border-brand-purple/50'
+        }`}
       >
         <Upload className="w-6 h-6 mx-auto mb-2 text-text-muted" />
         <p className="text-sm text-text-muted">{t('dragDrop')}</p>
