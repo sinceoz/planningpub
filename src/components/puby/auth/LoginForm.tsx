@@ -28,6 +28,7 @@ export default function LoginForm() {
 
   return (
     <div className="w-full max-w-sm mx-auto">
+      <p className="text-sm text-text-muted text-center mb-2">PLANNINGPUB 임직원을 위한 통합 ERP 시스템</p>
       <h1 className="text-2xl font-bold text-center mb-8">{t('title')}</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="relative">
