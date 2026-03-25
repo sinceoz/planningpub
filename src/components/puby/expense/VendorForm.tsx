@@ -6,7 +6,7 @@ import { useRouter } from '@/i18n/routing';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
 import { useExpenses } from '@/hooks/puby/useExpenses';
 import { useProjects } from '@/hooks/puby/useProjects';
-import FileUpload from './FileUpload';
+import FileUpload, { type OcrResult } from './FileUpload';
 import type { ExpenseFile, ExpenseStatus } from '@/types/puby';
 
 export default function VendorForm() {
@@ -30,6 +30,18 @@ export default function VendorForm() {
   const [files, setFiles] = useState<ExpenseFile[]>([]);
   const [notifyByEmail, setNotifyByEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  function handleOcrResult(result: OcrResult) {
+    if (result.companyName) setCompanyName(result.companyName);
+    if (result.businessNumber) setBusinessNumber(result.businessNumber);
+    if (result.representative) setRepresentative(result.representative);
+    if (result.address) setAddress(result.address);
+    if (result.bankName) setBankName(result.bankName);
+    if (result.accountNumber) setAccountNumber(result.accountNumber);
+    if (result.accountHolder) setAccountHolder(result.accountHolder);
+    if (result.amount) setAmount(result.amount);
+    if (result.description) setDescription(result.description);
+  }
 
   async function handleSave(status: ExpenseStatus) {
     if (!pubyUser || !projectId) return;
@@ -74,7 +86,7 @@ export default function VendorForm() {
           <div><label className={labelClass}>{tv('accountHolder')}</label><input type="text" value={accountHolder} onChange={(e) => setAccountHolder(e.target.value)} required className={inputClass} /></div>
         </div>
         <div><label className={labelClass}>{tv('description')}</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={inputClass} /></div>
-        <FileUpload files={files} onChange={setFiles} storagePath="puby/expenses/vendor" />
+        <FileUpload files={files} onChange={setFiles} storagePath="puby/expenses/vendor" ocrType="vendor" onOcrResult={handleOcrResult} />
         <label className="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" checked={notifyByEmail} onChange={(e) => setNotifyByEmail(e.target.checked)} className="accent-brand-purple" />
           <span className="text-sm text-text-muted">{t('notifyByEmail')}</span>

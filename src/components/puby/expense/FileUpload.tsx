@@ -4,38 +4,88 @@ import { useState, useRef, useCallback, type ChangeEvent, type DragEvent } from 
 import { useTranslations } from 'next-intl';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
-import { Upload, X, FileText } from 'lucide-react';
+import { Upload, X, FileText, ScanSearch } from 'lucide-react';
 import type { ExpenseFile } from '@/types/puby';
+
+export interface OcrResult {
+  // card fields
+  storeName?: string;
+  amount?: number;
+  paymentDateTime?: string;
+  cardLastFour?: string;
+  description?: string;
+  // vendor fields
+  companyName?: string;
+  businessNumber?: string;
+  representative?: string;
+  address?: string;
+  bankName?: string;
+  accountNumber?: string;
+  accountHolder?: string;
+}
 
 interface FileUploadProps {
   files: ExpenseFile[];
   onChange: (files: ExpenseFile[]) => void;
   storagePath: string;
+  ocrType?: 'card' | 'vendor';
+  onOcrResult?: (result: OcrResult) => void;
 }
 
-export default function FileUpload({ files, onChange, storagePath }: FileUploadProps) {
+export default function FileUpload({ files, onChange, storagePath, ocrType, onOcrResult }: FileUploadProps) {
   const t = useTranslations('puby.expense.files');
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+
+  const runOcr = useCallback(async (url: string, mimeType: string) => {
+    if (!ocrType || !onOcrResult || !mimeType.startsWith('image/')) return;
+    setAnalyzing(true);
+    try {
+      const res = await fetch('/api/puby/ocr', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageUrl: url, type: ocrType }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        onOcrResult(data);
+      }
+    } catch (err) {
+      console.error('OCR failed:', err);
+    } finally {
+      setAnalyzing(false);
+    }
+  }, [ocrType, onOcrResult]);
 
   const uploadFiles = useCallback(async (fileList: FileList) => {
     setUploading(true);
     try {
       const newFiles: ExpenseFile[] = [];
+      let firstImageUrl = '';
+      let firstImageType = '';
       for (const file of Array.from(fileList)) {
         if (file.size > 10 * 1024 * 1024) continue;
         const storageRef = ref(storage, `${storagePath}/${Date.now()}-${file.name}`);
         await uploadBytes(storageRef, file);
         const url = await getDownloadURL(storageRef);
         newFiles.push({ name: file.name, url, type: file.type });
+        if (!firstImageUrl && file.type.startsWith('image/')) {
+          firstImageUrl = url;
+          firstImageType = file.type;
+        }
       }
       onChange([...files, ...newFiles]);
+      // Auto-run OCR on first uploaded image
+      if (firstImageUrl) {
+        runOcr(firstImageUrl, firstImageType);
+      }
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = '';
     }
-  }, [files, onChange, storagePath]);
+  }, [files, onChange, storagePath, runOcr]);
 
   function handleFiles(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files) uploadFiles(e.target.files);
@@ -79,6 +129,12 @@ export default function FileUpload({ files, onChange, storagePath }: FileUploadP
         <p className="text-sm text-text-muted">{t('dragDrop')}</p>
         <p className="text-xs text-text-muted mt-1">{t('maxSize')}</p>
         {uploading && <p className="text-xs text-brand-purple mt-2">업로드 중...</p>}
+        {analyzing && (
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <ScanSearch className="w-4 h-4 text-brand-purple animate-pulse" />
+            <p className="text-xs text-brand-purple">영수증 분석 중...</p>
+          </div>
+        )}
       </div>
       <input ref={inputRef} type="file" multiple onChange={handleFiles} className="hidden" accept="image/*,.pdf" />
 

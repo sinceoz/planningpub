@@ -7,7 +7,7 @@ import { usePubyAuth } from '@/hooks/puby/useAuth';
 import { useExpenses } from '@/hooks/puby/useExpenses';
 import { useProjects } from '@/hooks/puby/useProjects';
 import { Timestamp } from 'firebase/firestore';
-import FileUpload from './FileUpload';
+import FileUpload, { type OcrResult } from './FileUpload';
 import type { ExpenseFile, ExpenseStatus } from '@/types/puby';
 
 export default function CardForm() {
@@ -28,6 +28,14 @@ export default function CardForm() {
   const [files, setFiles] = useState<ExpenseFile[]>([]);
   const [notifyByEmail, setNotifyByEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  function handleOcrResult(result: OcrResult) {
+    if (result.storeName) setStoreName(result.storeName);
+    if (result.amount) setAmount(result.amount);
+    if (result.paymentDateTime) setPaymentDateTime(result.paymentDateTime);
+    if (result.cardLastFour) setCardLastFour(result.cardLastFour);
+    if (result.description) setDescription(result.description);
+  }
 
   async function handleSave(status: ExpenseStatus) {
     if (!pubyUser || !projectId) return;
@@ -70,7 +78,7 @@ export default function CardForm() {
         <div><label className={labelClass}>{tc('cardLastFour')}</label><input type="text" value={cardLastFour} onChange={(e) => setCardLastFour(e.target.value)} maxLength={4} className={`${inputClass} max-w-[120px]`} placeholder="0000" /></div>
         <div><label className={labelClass}>{tc('description')}</label><input type="text" value={description} onChange={(e) => setDescription(e.target.value)} required className={inputClass} /></div>
         <div><label className={labelClass}>{tc('reason')}</label><textarea value={reason} onChange={(e) => setReason(e.target.value)} required rows={3} className={inputClass} /></div>
-        <FileUpload files={files} onChange={setFiles} storagePath="puby/expenses/card" />
+        <FileUpload files={files} onChange={setFiles} storagePath="puby/expenses/card" ocrType="card" onOcrResult={handleOcrResult} />
         <label className="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" checked={notifyByEmail} onChange={(e) => setNotifyByEmail(e.target.checked)} className="accent-brand-purple" />
           <span className="text-sm text-text-muted">{t('notifyByEmail')}</span>
