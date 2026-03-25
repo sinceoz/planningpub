@@ -22,13 +22,16 @@ export interface OcrResult {
   bankName?: string;
   accountNumber?: string;
   accountHolder?: string;
+  // labor fields
+  name?: string;
+  residentId?: string;
 }
 
 interface FileUploadProps {
   files: ExpenseFile[];
   onChange: (files: ExpenseFile[]) => void;
   storagePath: string;
-  ocrType?: 'card' | 'vendor';
+  ocrType?: 'card' | 'vendor' | 'labor';
   onOcrResult?: (result: OcrResult) => void;
 }
 

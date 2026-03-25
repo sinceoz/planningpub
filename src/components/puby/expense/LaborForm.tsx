@@ -8,7 +8,7 @@ import { useExpenses } from '@/hooks/puby/useExpenses';
 import { useProjects } from '@/hooks/puby/useProjects';
 import { calculateTaxDeduction } from '@/lib/puby/tax';
 import { formatCurrency } from '@/lib/puby/format';
-import FileUpload from './FileUpload';
+import FileUpload, { type OcrResult } from './FileUpload';
 import type { ExpenseFile, IncomeType, ExpenseStatus } from '@/types/puby';
 import { Info } from 'lucide-react';
 
@@ -36,6 +36,15 @@ export default function LaborForm() {
   const [files, setFiles] = useState<ExpenseFile[]>([]);
   const [notifyByEmail, setNotifyByEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  function handleOcrResult(result: OcrResult) {
+    if (result.name) setName(result.name);
+    if (result.residentId) setResidentId(result.residentId);
+    if (result.address) setAddress(result.address);
+    if (result.bankName) setBankName(result.bankName);
+    if (result.accountNumber) setAccountNumber(result.accountNumber);
+    if (result.accountHolder) setAccountHolder(result.accountHolder);
+  }
 
   const taxCalc = calculateTaxDeduction(amount, taxType);
 
@@ -143,7 +152,7 @@ export default function LaborForm() {
         <div><label className={labelClass}>{tl('workDescription')}</label><textarea value={workDescription} onChange={(e) => setWorkDescription(e.target.value)} required rows={3} className={inputClass} /></div>
 
         {/* Files */}
-        <FileUpload files={files} onChange={setFiles} storagePath={`puby/expenses/labor`} />
+        <FileUpload files={files} onChange={setFiles} storagePath={`puby/expenses/labor`} ocrType="labor" onOcrResult={handleOcrResult} />
 
         {/* Notify */}
         <label className="flex items-center gap-2 cursor-pointer">

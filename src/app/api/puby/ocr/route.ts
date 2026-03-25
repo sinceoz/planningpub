@@ -23,8 +23,8 @@ export async function POST(req: NextRequest) {
 
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-    const prompt = type === 'vendor'
-      ? `이 이미지는 한국 사업자등록증, 세금계산서, 또는 거래명세서입니다.
+    const prompts: Record<string, string> = {
+      vendor: `이 이미지는 한국 사업자등록증, 세금계산서, 또는 거래명세서입니다.
 다음 정보를 JSON으로 추출해주세요. 없는 항목은 빈 문자열로:
 {
   "companyName": "상호/회사명",
@@ -37,8 +37,19 @@ export async function POST(req: NextRequest) {
   "amount": 금액(숫자만),
   "description": "품목/내용 요약"
 }
-JSON만 반환하세요.`
-      : `이 이미지는 한국 카드 영수증 또는 결제 내역입니다.
+JSON만 반환하세요.`,
+      labor: `이 이미지는 한국 신분증(주민등록증, 운전면허증) 또는 통장사본입니다.
+다음 정보를 JSON으로 추출해주세요. 없는 항목은 빈 문자열로:
+{
+  "name": "성명",
+  "residentId": "주민등록번호 (000000-0000000 형식, 뒷자리가 보이면 포함)",
+  "address": "주소",
+  "bankName": "은행명 (통장사본인 경우)",
+  "accountNumber": "계좌번호 (통장사본인 경우)",
+  "accountHolder": "예금주 (통장사본인 경우)"
+}
+JSON만 반환하세요.`,
+      card: `이 이미지는 한국 카드 영수증 또는 결제 내역입니다.
 다음 정보를 JSON으로 추출해주세요. 없는 항목은 빈 문자열로:
 {
   "storeName": "가맹점/상호명",
@@ -47,7 +58,10 @@ JSON만 반환하세요.`
   "cardLastFour": "카드번호 뒤 4자리",
   "description": "품목/내용 요약"
 }
-JSON만 반환하세요.`;
+JSON만 반환하세요.`,
+    };
+
+    const prompt = prompts[type] || prompts.card;
 
     const result = await model.generateContent([
       { text: prompt },
