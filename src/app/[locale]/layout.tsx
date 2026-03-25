@@ -3,7 +3,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { Noto_Sans_KR } from 'next/font/google';
-import Navbar from '@/components/layout/Navbar';
+import ConditionalNavbar from '@/components/layout/ConditionalNavbar';
 import ConditionalFooter from '@/components/layout/ConditionalFooter';
 
 const notoSansKr = Noto_Sans_KR({
@@ -86,7 +86,7 @@ export default async function LocaleLayout({
         suppressHydrationWarning
       >
         <NextIntlClientProvider messages={messages}>
-          <Navbar />
+          <ConditionalNavbar />
           <main className="min-h-[calc(100vh-160px)]">
             {children}
           </main>
