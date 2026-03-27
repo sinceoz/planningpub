@@ -45,7 +45,7 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
   const [dragOver, setDragOver] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const runOcr = useCallback(async (ocrUrls: string[]) => {
+  const runOcr = useCallback(async (ocrUrls: string[], currentFiles: ExpenseFile[]) => {
     if (!ocrType || !onOcrResult || ocrUrls.length === 0) return;
     setAnalyzing(true);
     try {
@@ -58,8 +58,8 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
         const data = await res.json();
         // fileTags로 파일에 태그 적용
         if (data.fileTags && Array.isArray(data.fileTags)) {
-          const ocrableFiles = files.filter((f) => f.type.startsWith('image/') || f.type === 'application/pdf');
-          const updated = files.map((f) => {
+          const ocrableFiles = currentFiles.filter((f) => f.type.startsWith('image/') || f.type === 'application/pdf');
+          const updated = currentFiles.map((f) => {
             const idx = ocrableFiles.indexOf(f);
             if (idx >= 0 && idx < data.fileTags.length) {
               return { ...f, tag: data.fileTags[idx] };
@@ -75,7 +75,7 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
     } finally {
       setAnalyzing(false);
     }
-  }, [ocrType, onOcrResult, onChange, files]);
+  }, [ocrType, onOcrResult, onChange]);
 
   const uploadFiles = useCallback(async (fileList: FileList) => {
     setUploading(true);
@@ -95,12 +95,11 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
       const allFiles = [...files, ...newFiles];
       onChange(allFiles);
       // Run OCR on ALL ocr-able files (existing + new) for multi-document analysis
-      const allOcrUrls = [
-        ...files.filter((f) => f.type.startsWith('image/') || f.type === 'application/pdf').map((f) => f.url),
-        ...ocrUrls,
-      ];
+      const allOcrUrls = allFiles
+        .filter((f) => f.type.startsWith('image/') || f.type === 'application/pdf')
+        .map((f) => f.url);
       if (allOcrUrls.length > 0) {
-        runOcr(allOcrUrls);
+        runOcr(allOcrUrls, allFiles);
       }
     } finally {
       setUploading(false);
