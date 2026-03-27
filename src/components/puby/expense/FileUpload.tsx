@@ -172,7 +172,7 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
                 )}
                 <span className="text-sm text-text-primary truncate flex-1">{file.name}</span>
                 <button
-                  onClick={(e) => { e.stopPropagation(); setPreviewUrl(previewUrl === file.url ? null : file.url); }}
+                  onClick={(e) => { e.stopPropagation(); setPreviewUrl(file.url); }}
                   className="p-1 text-text-muted hover:text-brand-purple"
                   title="미리보기"
                 >
@@ -182,17 +182,27 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
-              {previewUrl === file.url && (
-                <div className="border-t border-border-default p-2">
-                  {isImage(file.type) ? (
-                    <img src={file.url} alt={file.name} className="max-h-80 w-full object-contain rounded" />
-                  ) : (
-                    <iframe src={file.url} className="w-full h-80 rounded" title={file.name} />
-                  )}
-                </div>
-              )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* 미리보기 모달 */}
+      {previewUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setPreviewUrl(null)}>
+          <div className="relative max-w-4xl w-full max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setPreviewUrl(null)}
+              className="absolute -top-10 right-0 text-white/70 hover:text-white text-sm flex items-center gap-1"
+            >
+              <X className="w-4 h-4" /> 닫기
+            </button>
+            {files.find((f) => f.url === previewUrl)?.type.startsWith('image/') ? (
+              <img src={previewUrl} alt="" className="w-full max-h-[85vh] object-contain rounded-lg" />
+            ) : (
+              <iframe src={previewUrl} className="w-full h-[85vh] rounded-lg bg-white" title="미리보기" />
+            )}
+          </div>
         </div>
       )}
     </div>

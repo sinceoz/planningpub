@@ -62,6 +62,8 @@ export default function ExpenseApprovalPage() {
   const [batchSubmitting, setBatchSubmitting] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentExporting, setPaymentExporting] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [batchCompleting, setBatchCompleting] = useState(false);
 
   if (pubyUser?.role !== 'admin') return null;
 
@@ -106,6 +108,7 @@ export default function ExpenseApprovalPage() {
         approvalHistory: [...exp.approvalHistory, entry],
         ...(action === 'reject' ? { rejectionReason } : {}),
         ...(action === 'approve' && expectedPaymentDate ? { expectedPaymentDate } : {}),
+        ...(action === 'complete' ? { completedAt: new Date().toISOString().slice(0, 10) } : {}),
       });
 
       const notifTypeMap: Record<string, NotificationType> = {
@@ -144,6 +147,8 @@ export default function ExpenseApprovalPage() {
 
   // 일괄 승인 대상: 체크된 항목 중 승인 가능한 것만
   const batchApprovable = filtered.filter((e) => selectedIds.has(e.id) && canApprove(e));
+  // 일괄 완료 대상: 체크된 항목 중 approved 상태
+  const batchCompletable = filtered.filter((e) => selectedIds.has(e.id) && e.status === 'approved');
 
   async function handleBatchApprove() {
     if (!pubyUser || batchApprovable.length === 0) return;
@@ -167,6 +172,32 @@ export default function ExpenseApprovalPage() {
       setBatchPaymentDate('');
     } finally {
       setBatchSubmitting(false);
+    }
+  }
+
+  async function handleBatchComplete() {
+    if (!pubyUser || batchCompletable.length === 0) return;
+    setBatchCompleting(true);
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      for (const exp of batchCompletable) {
+        const entry = { action: 'complete', by: pubyUser.uid, role: pubyUser.role, at: Timestamp.now() };
+        await updateExpense(exp.id, {
+          status: 'completed' as ExpenseStatus,
+          approvalHistory: [...exp.approvalHistory, entry],
+          completedAt: today,
+        });
+        if (exp.createdBy !== pubyUser.uid) {
+          notifyExpenseStatusChange({
+            expenseId: exp.id, targetUserId: exp.createdBy, type: 'expense_completed',
+            actorName: pubyUser.displayName, expenseTitle: getExpenseLabel(exp) || exp.type,
+          }).catch(() => {});
+        }
+      }
+      setSelectedIds(new Set());
+      setShowCompleteModal(false);
+    } finally {
+      setBatchCompleting(false);
     }
   }
 
@@ -349,6 +380,18 @@ export default function ExpenseApprovalPage() {
             className="flex items-center gap-1 px-4 py-2 rounded-lg bg-green-500 text-white text-sm font-medium hover:bg-green-600 disabled:opacity-50"
           >
             <Check className="w-3.5 h-3.5" /> 일괄 승인
+          </button>
+        </div>
+      )}
+
+      {batchCompletable.length > 0 && (
+        <div className="flex items-center gap-3 p-3 mb-4 bg-emerald-500/5 border border-emerald-500/20 rounded-lg">
+          <span className="text-sm text-text-primary">{batchCompletable.length}건 완료처리 가능</span>
+          <button
+            onClick={() => setShowCompleteModal(true)}
+            className="flex items-center gap-1 px-4 py-2 rounded-lg bg-emerald-500 text-white text-sm font-medium hover:bg-emerald-600"
+          >
+            <Check className="w-3.5 h-3.5" /> 일괄 완료처리
           </button>
         </div>
       )}
@@ -556,6 +599,33 @@ export default function ExpenseApprovalPage() {
                 className="flex-1 py-2.5 rounded-lg border border-border-default text-text-primary text-sm hover:bg-surface-secondary"
               >
                 내보내기만
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 일괄 완료처리 확인 모달 */}
+      {showCompleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowCompleteModal(false)}>
+          <div className="bg-surface-primary border border-border-default rounded-xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-text-primary mb-2">완료처리</h2>
+            <p className="text-sm text-text-muted mb-4">
+              {batchCompletable.length}건의 결의를 완료 처리하시겠습니까?
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleBatchComplete}
+                disabled={batchCompleting}
+                className="flex-1 py-2.5 rounded-lg bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 disabled:opacity-50"
+              >
+                {batchCompleting ? '처리 중...' : '확인'}
+              </button>
+              <button
+                onClick={() => setShowCompleteModal(false)}
+                className="flex-1 py-2.5 rounded-lg border border-border-default text-text-primary text-sm hover:bg-surface-secondary"
+              >
+                취소
               </button>
             </div>
           </div>

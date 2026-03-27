@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
 import { useExpenses } from '@/hooks/puby/useExpenses';
 import { useProjects } from '@/hooks/puby/useProjects';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import FileUpload, { type OcrResult } from './FileUpload';
 import { notifyExpenseSubmitted } from '@/lib/puby/notifications';
 import { copyFilesToFolder } from '@/lib/puby/expenseFolder';
-import type { ExpenseFile, ExpenseStatus } from '@/types/puby';
+import type { ExpenseFile, ExpenseStatus, PubyCard } from '@/types/puby';
 
 export default function CardForm() {
   const t = useTranslations('puby.expense');
@@ -26,30 +27,44 @@ export default function CardForm() {
     return `puby/expenses/card/${ym}/${Date.now()}`;
   }, []);
 
+  const [cards, setCards] = useState<PubyCard[]>([]);
   const [projectId, setProjectId] = useState('');
   const [amount, setAmount] = useState(0);
   const [storeName, setStoreName] = useState('');
   const [paymentDateTime, setPaymentDateTime] = useState('');
-  const [cardLastFour, setCardLastFour] = useState('');
-  const [description, setDescription] = useState('');
+  const [selectedCardId, setSelectedCardId] = useState('');
   const [reason, setReason] = useState('');
   const [files, setFiles] = useState<ExpenseFile[]>([]);
   const [extraFiles, setExtraFiles] = useState<ExpenseFile[]>([]);
   const [notifyByEmail, setNotifyByEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    const q = query(collection(db, 'puby_cards'), orderBy('createdAt', 'desc'));
+    const unsub = onSnapshot(q, (snap) => {
+      setCards(snap.docs.map((d) => ({ id: d.id, ...d.data() } as PubyCard)));
+    });
+    return unsub;
+  }, []);
+
+  const selectedCard = cards.find((c) => c.id === selectedCardId);
+
   function handleOcrResult(result: OcrResult) {
     if (result.storeName) setStoreName(result.storeName);
     if (result.amount) setAmount(result.amount);
     if (result.paymentDateTime) setPaymentDateTime(result.paymentDateTime);
-    if (result.cardLastFour) setCardLastFour(result.cardLastFour);
-    if (result.description) setDescription(result.description);
+    // OCR에서 카드 뒤 4자리가 나오면 매칭되는 카드 자동 선택
+    if (result.cardLastFour) {
+      const matched = cards.find((c) => c.lastFour === result.cardLastFour);
+      if (matched) setSelectedCardId(matched.id);
+    }
   }
 
   async function handleSave(status: ExpenseStatus) {
     if (!pubyUser || !projectId) return;
     setSubmitting(true);
     try {
+      const cardLastFour = selectedCard?.lastFour || '';
       const newId = await createExpense({
         type: 'card', projectId, createdBy: pubyUser.uid, status,
         amount, netAmount: amount, approvalHistory: [], notifyByEmail, files, extraFiles,
@@ -57,7 +72,7 @@ export default function CardForm() {
           storeName,
           paymentDateTime: paymentDateTime ? Timestamp.fromDate(new Date(paymentDateTime)) : Timestamp.now(),
           cardLastFour: cardLastFour || undefined,
-          description, reason,
+          description: '', reason,
         },
       } as any);
       const project = projects.find((p) => p.id === projectId);
@@ -73,7 +88,7 @@ export default function CardForm() {
         copyFilesToFolder({
           id: newId, type: 'card', projectId, createdBy: pubyUser.uid, status, amount, netAmount: amount,
           approvalHistory: [], notifyByEmail, files, extraFiles,
-          cardDetails: { storeName, paymentDateTime: Timestamp.fromDate(paymentDateTime ? new Date(paymentDateTime) : now), cardLastFour, description, reason },
+          cardDetails: { storeName, paymentDateTime: Timestamp.fromDate(paymentDateTime ? new Date(paymentDateTime) : now), cardLastFour, description: '', reason },
           createdAt: { toDate: () => now } as any, updatedAt: { toDate: () => now } as any,
         } as any, project.name).catch(() => {});
       }
@@ -102,8 +117,17 @@ export default function CardForm() {
           <div><label className={labelClass}>{tc('storeName')}</label><input type="text" value={storeName} onChange={(e) => setStoreName(e.target.value)} required className={inputClass} /></div>
           <div><label className={labelClass}>{tc('paymentDateTime')}</label><input type="datetime-local" value={paymentDateTime} onChange={(e) => setPaymentDateTime(e.target.value)} required className={inputClass} /></div>
         </div>
-        <div><label className={labelClass}>{tc('cardLastFour')}</label><input type="text" value={cardLastFour} onChange={(e) => setCardLastFour(e.target.value)} maxLength={4} className={`${inputClass} max-w-[120px]`} placeholder="0000" /></div>
-        <div><label className={labelClass}>{tc('description')}</label><input type="text" value={description} onChange={(e) => setDescription(e.target.value)} required className={inputClass} /></div>
+        <div>
+          <label className={labelClass}>사용 카드</label>
+          {cards.length > 0 ? (
+            <select value={selectedCardId} onChange={(e) => setSelectedCardId(e.target.value)} className={inputClass}>
+              <option value="">카드 선택</option>
+              {cards.map((c) => <option key={c.id} value={c.id}>{c.label} (****{c.lastFour})</option>)}
+            </select>
+          ) : (
+            <p className="text-xs text-text-dim">등록된 카드가 없습니다. 관리 &gt; 카드 관리에서 추가해 주세요.</p>
+          )}
+        </div>
         <div><label className={labelClass}>{tc('reason')}</label><textarea value={reason} onChange={(e) => setReason(e.target.value)} required rows={3} className={inputClass} /></div>
         <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="card" onOcrResult={handleOcrResult} />
         <div>

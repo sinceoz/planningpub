@@ -41,6 +41,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: '/puby/admin', labelKey: 'employees' },
       { href: '/puby/admin/projects', labelKey: 'projects' },
       { href: '/puby/admin/expenses', labelKey: 'expenseApproval' },
+      { href: '/puby/admin/cards', labelKey: 'cardManagement' },
       { href: '/puby/admin/files', labelKey: 'fileManager' },
       { href: '/puby/admin/settings', labelKey: 'settings' },
     ],

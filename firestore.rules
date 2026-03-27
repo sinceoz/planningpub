@@ -83,6 +83,11 @@ service cloud.firestore {
       allow write: if isPubyUser();
     }
 
+    match /puby_cards/{cardId} {
+      allow read: if isPubyUser();
+      allow write: if isAdmin();
+    }
+
     match /puby_settings/{settingId} {
       allow read: if isPubyUser();
       allow write: if isAdmin();

@@ -193,6 +193,7 @@
       "employees": "Employees",
       "projects": "Projects",
       "expenseApproval": "Expense Approval",
+      "cardManagement": "Card Management",
       "fileManager": "File Manager",
       "settings": "Settings"
     },

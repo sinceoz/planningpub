@@ -188,6 +188,14 @@ export interface LaboreeCache {
   updatedAt: Timestamp;
 }
 
+// === Cards (법인카드 목록) ===
+export interface PubyCard {
+  id: string;
+  label: string;
+  lastFour: string;
+  createdAt: Timestamp;
+}
+
 // === Settings ===
 export interface PubyScheduleSettings {
   startHour: number;
