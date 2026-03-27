@@ -60,6 +60,8 @@ export default function ExpenseApprovalPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [batchPaymentDate, setBatchPaymentDate] = useState('');
   const [batchSubmitting, setBatchSubmitting] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentExporting, setPaymentExporting] = useState(false);
 
   if (pubyUser?.role !== 'admin') return null;
 
@@ -168,10 +170,11 @@ export default function ExpenseApprovalPage() {
     }
   }
 
-  // 입금용 엑셀: 은행 양식
-  function handleExportPayment() {
-    const target = selectedExpenses.length > 0 ? selectedExpenses : filtered;
-    const rows = target.map((exp) => {
+  // 입금용 내보내기 대상
+  const paymentTarget = selectedExpenses.length > 0 ? selectedExpenses : filtered;
+
+  function doExportPayment() {
+    const rows = paymentTarget.map((exp) => {
       const bank = getBankInfo(exp);
       return {
         '*입금은행': bank.bankName,
@@ -194,6 +197,44 @@ export default function ExpenseApprovalPage() {
     ];
     const today = new Date().toISOString().slice(0, 10);
     XLSX.writeFile(wb, `입금_${today}.xlsx`);
+  }
+
+  // 입금용 내보내기 버튼 → 모달 표시
+  function handleExportPayment() {
+    setShowPaymentModal(true);
+  }
+
+  // 내보내기 + 완료 처리
+  async function handleExportAndComplete() {
+    if (!pubyUser) return;
+    setPaymentExporting(true);
+    doExportPayment();
+    const today = new Date().toISOString().slice(0, 10);
+    for (const exp of paymentTarget) {
+      if (exp.status !== 'completed') {
+        const entry = { action: 'complete', by: pubyUser.uid, role: pubyUser.role, at: Timestamp.now() };
+        await updateExpense(exp.id, {
+          status: 'completed' as ExpenseStatus,
+          approvalHistory: [...exp.approvalHistory, entry],
+          completedAt: today,
+        });
+        if (exp.createdBy !== pubyUser.uid) {
+          notifyExpenseStatusChange({
+            expenseId: exp.id, targetUserId: exp.createdBy, type: 'expense_completed',
+            actorName: pubyUser.displayName, expenseTitle: getExpenseLabel(exp) || exp.type,
+          }).catch(() => {});
+        }
+      }
+    }
+    setPaymentExporting(false);
+    setShowPaymentModal(false);
+    setSelectedIds(new Set());
+  }
+
+  // 내보내기만 (완료 처리 안함)
+  function handleExportOnly() {
+    doExportPayment();
+    setShowPaymentModal(false);
   }
 
   // 리스트업 엑셀: 업체명/사업자번호/은행/계좌/비고/금액/날짜/프로젝트
@@ -491,6 +532,33 @@ export default function ExpenseApprovalPage() {
               </div>
             );
           })}
+        </div>
+      )}
+      {/* 입금 내보내기 완료 처리 모달 */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowPaymentModal(false)}>
+          <div className="bg-surface-primary border border-border-default rounded-xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-text-primary mb-2">입금용 내보내기</h2>
+            <p className="text-sm text-text-muted mb-4">
+              {paymentTarget.length}건의 결의를 엑셀로 내보냅니다.<br />
+              해당 결의를 완료 처리하시겠습니까?
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleExportAndComplete}
+                disabled={paymentExporting}
+                className="flex-1 py-2.5 rounded-lg bg-green-500 text-white text-sm font-semibold hover:bg-green-600 disabled:opacity-50"
+              >
+                {paymentExporting ? '처리 중...' : '내보내기 + 완료 처리'}
+              </button>
+              <button
+                onClick={handleExportOnly}
+                className="flex-1 py-2.5 rounded-lg border border-border-default text-text-primary text-sm hover:bg-surface-secondary"
+              >
+                내보내기만
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

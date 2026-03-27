@@ -141,6 +141,7 @@ export interface PubyExpense {
   rejectionReason?: string;
   paymentDate?: Timestamp;
   expectedPaymentDate?: string;
+  completedAt?: string;
   paymentProof?: string;
   notifyByEmail: boolean;
   files: ExpenseFile[];
