@@ -58,6 +58,8 @@ export default function ExpenseApprovalPage() {
   const [expectedPaymentDate, setExpectedPaymentDate] = useState('');
   const [submitting, setSubmitting] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [batchPaymentDate, setBatchPaymentDate] = useState('');
+  const [batchSubmitting, setBatchSubmitting] = useState(false);
 
   if (pubyUser?.role !== 'admin') return null;
 
@@ -136,6 +138,34 @@ export default function ExpenseApprovalPage() {
       (exp.status === 'submitted' && (!project?.approvalFlow || !project?.managerId)) ||
       exp.status === 'manager_approved'
     );
+  }
+
+  // 일괄 승인 대상: 체크된 항목 중 승인 가능한 것만
+  const batchApprovable = filtered.filter((e) => selectedIds.has(e.id) && canApprove(e));
+
+  async function handleBatchApprove() {
+    if (!pubyUser || batchApprovable.length === 0) return;
+    setBatchSubmitting(true);
+    try {
+      for (const exp of batchApprovable) {
+        const entry = { action: 'approve', by: pubyUser.uid, role: pubyUser.role, at: Timestamp.now() };
+        await updateExpense(exp.id, {
+          status: 'approved' as ExpenseStatus,
+          approvalHistory: [...exp.approvalHistory, entry],
+          ...(batchPaymentDate ? { expectedPaymentDate: batchPaymentDate } : {}),
+        });
+        if (exp.createdBy !== pubyUser.uid) {
+          notifyExpenseStatusChange({
+            expenseId: exp.id, targetUserId: exp.createdBy, type: 'expense_approved',
+            actorName: pubyUser.displayName, expenseTitle: getExpenseLabel(exp) || exp.type,
+          }).catch(() => {});
+        }
+      }
+      setSelectedIds(new Set());
+      setBatchPaymentDate('');
+    } finally {
+      setBatchSubmitting(false);
+    }
   }
 
   // 입금용 엑셀: 은행 양식
@@ -251,6 +281,37 @@ export default function ExpenseApprovalPage() {
         <span className="text-xs text-text-muted">{filtered.length}건</span>
       </div>
 
+      {/* 일괄 승인 바 */}
+      {batchApprovable.length > 0 && (
+        <div className="flex items-center gap-3 p-3 mb-4 bg-green-500/5 border border-green-500/20 rounded-lg">
+          <span className="text-sm text-text-primary">{batchApprovable.length}건 승인 가능</span>
+          <input
+            type="text"
+            placeholder="입금예정일 (YYYY-MM-DD)"
+            value={batchPaymentDate}
+            onChange={(e) => {
+              let v = e.target.value.replace(/[^0-9-]/g, '');
+              // 자동 하이픈: 4자리 → YYYY-, 7자리 → YYYY-MM-
+              const digits = v.replace(/-/g, '');
+              if (digits.length >= 4 && !v.includes('-')) v = digits.slice(0, 4) + '-' + digits.slice(4);
+              if (digits.length >= 6 && v.split('-').length < 3) v = digits.slice(0, 4) + '-' + digits.slice(4, 6) + '-' + digits.slice(6);
+              if (v.length > 10) v = v.slice(0, 10);
+              setBatchPaymentDate(v);
+            }}
+            maxLength={10}
+            className="px-3 py-1.5 rounded-lg bg-surface-primary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm w-40"
+          />
+          <span className="text-xs text-text-muted">(선택)</span>
+          <button
+            onClick={handleBatchApprove}
+            disabled={batchSubmitting}
+            className="flex items-center gap-1 px-4 py-2 rounded-lg bg-green-500 text-white text-sm font-medium hover:bg-green-600 disabled:opacity-50"
+          >
+            <Check className="w-3.5 h-3.5" /> 일괄 승인
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <div className="text-center text-text-muted py-12">Loading...</div>
       ) : filtered.length === 0 ? (
@@ -364,10 +425,19 @@ export default function ExpenseApprovalPage() {
                           <div className="flex items-center gap-2">
                             <label className="text-sm text-text-muted shrink-0">{t('paymentDate')}</label>
                             <input
-                              type="date"
+                              type="text"
+                              placeholder="YYYY-MM-DD"
                               value={expectedPaymentDate}
-                              onChange={(e) => setExpectedPaymentDate(e.target.value)}
-                              className="px-3 py-1.5 rounded-lg bg-surface-primary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm"
+                              onChange={(e) => {
+                                let v = e.target.value.replace(/[^0-9-]/g, '');
+                                const digits = v.replace(/-/g, '');
+                                if (digits.length >= 4 && !v.includes('-')) v = digits.slice(0, 4) + '-' + digits.slice(4);
+                                if (digits.length >= 6 && v.split('-').length < 3) v = digits.slice(0, 4) + '-' + digits.slice(4, 6) + '-' + digits.slice(6);
+                                if (v.length > 10) v = v.slice(0, 10);
+                                setExpectedPaymentDate(v);
+                              }}
+                              maxLength={10}
+                              className="px-3 py-1.5 rounded-lg bg-surface-primary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm w-36"
                             />
                             <span className="text-xs text-text-muted">(선택)</span>
                           </div>

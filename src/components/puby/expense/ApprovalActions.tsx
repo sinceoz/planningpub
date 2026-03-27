@@ -81,10 +81,19 @@ export default function ApprovalActions({ expense, project }: ApprovalActionsPro
         <div className="flex items-center gap-2 mb-3">
           <label className="text-sm text-text-muted">{t('paymentDate')}</label>
           <input
-            type="date"
+            type="text"
+            placeholder="YYYY-MM-DD"
             value={expectedPaymentDate}
-            onChange={(e) => setExpectedPaymentDate(e.target.value)}
-            className="px-3 py-1.5 rounded-lg bg-surface-secondary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm"
+            onChange={(e) => {
+              let v = e.target.value.replace(/[^0-9-]/g, '');
+              const digits = v.replace(/-/g, '');
+              if (digits.length >= 4 && !v.includes('-')) v = digits.slice(0, 4) + '-' + digits.slice(4);
+              if (digits.length >= 6 && v.split('-').length < 3) v = digits.slice(0, 4) + '-' + digits.slice(4, 6) + '-' + digits.slice(6);
+              if (v.length > 10) v = v.slice(0, 10);
+              setExpectedPaymentDate(v);
+            }}
+            maxLength={10}
+            className="px-3 py-1.5 rounded-lg bg-surface-secondary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm w-36"
           />
         </div>
       )}
