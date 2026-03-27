@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
@@ -10,6 +10,7 @@ import { calculateTaxDeduction } from '@/lib/puby/tax';
 import { formatCurrency } from '@/lib/puby/format';
 import FileUpload, { type OcrResult } from './FileUpload';
 import { notifyExpenseSubmitted } from '@/lib/puby/notifications';
+import { getLaboreeCache, saveLaboreeCache } from '@/lib/puby/documentCache';
 import type { ExpenseFile, IncomeType, ExpenseStatus } from '@/types/puby';
 import { Info } from 'lucide-react';
 
@@ -43,15 +44,31 @@ export default function LaborForm() {
   const [files, setFiles] = useState<ExpenseFile[]>([]);
   const [notifyByEmail, setNotifyByEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [cacheLoaded, setCacheLoaded] = useState(false);
 
-  function handleOcrResult(result: OcrResult) {
+  const handleOcrResult = useCallback(async (result: OcrResult) => {
     if (result.name) setName(result.name);
     if (result.residentId) setResidentId(result.residentId);
     if (result.address) setAddress(result.address);
     if (result.bankName) setBankName(result.bankName);
     if (result.accountNumber) setAccountNumber(result.accountNumber);
     if (result.accountHolder) setAccountHolder(result.accountHolder);
-  }
+
+    // 주민등록번호로 기존 인력 문서 캐시 조회
+    if (result.residentId && !cacheLoaded) {
+      try {
+        const cached = await getLaboreeCache(result.residentId);
+        if (cached?.files?.length) {
+          setCacheLoaded(true);
+          setFiles((prev) => {
+            const existingUrls = new Set(prev.map((f) => f.url));
+            const newFiles = cached.files.filter((f) => !existingUrls.has(f.url));
+            return newFiles.length > 0 ? [...prev, ...newFiles] : prev;
+          });
+        }
+      } catch {}
+    }
+  }, [cacheLoaded]);
 
   const taxCalc = calculateTaxDeduction(amount, taxType);
 
@@ -77,6 +94,12 @@ export default function LaborForm() {
           workDescription,
         },
       } as any);
+
+      // 인력 문서 캐시 저장
+      if (residentId && files.length > 0) {
+        saveLaboreeCache(residentId, name, files).catch(() => {});
+      }
+
       if (status === 'submitted') {
         const project = projects.find((p) => p.id === projectId);
         if (project) {
@@ -172,6 +195,9 @@ export default function LaborForm() {
 
         {/* Files */}
         <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="labor" onOcrResult={handleOcrResult} />
+        {cacheLoaded && (
+          <p className="text-xs text-brand-mint">기존 인력 서류가 자동으로 불러와졌습니다.</p>
+        )}
 
         {/* Notify */}
         <label className="flex items-center gap-2 cursor-pointer">

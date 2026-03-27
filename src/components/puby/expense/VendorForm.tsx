@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
@@ -8,6 +8,7 @@ import { useExpenses } from '@/hooks/puby/useExpenses';
 import { useProjects } from '@/hooks/puby/useProjects';
 import FileUpload, { type OcrResult } from './FileUpload';
 import { notifyExpenseSubmitted } from '@/lib/puby/notifications';
+import { getVendorCache, saveVendorCache } from '@/lib/puby/documentCache';
 import type { ExpenseFile, ExpenseStatus } from '@/types/puby';
 
 export default function VendorForm() {
@@ -37,8 +38,9 @@ export default function VendorForm() {
   const [files, setFiles] = useState<ExpenseFile[]>([]);
   const [notifyByEmail, setNotifyByEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [cacheLoaded, setCacheLoaded] = useState(false);
 
-  function handleOcrResult(result: OcrResult) {
+  const handleOcrResult = useCallback(async (result: OcrResult) => {
     if (result.companyName) setCompanyName(result.companyName);
     if (result.businessNumber) setBusinessNumber(result.businessNumber);
     if (result.representative) setRepresentative(result.representative);
@@ -48,7 +50,22 @@ export default function VendorForm() {
     if (result.accountHolder) setAccountHolder(result.accountHolder);
     if (result.amount) setAmount(result.amount);
     if (result.description) setDescription(result.description);
-  }
+
+    // 사업자등록번호로 기존 거래처 문서 캐시 조회
+    if (result.businessNumber && !cacheLoaded) {
+      try {
+        const cached = await getVendorCache(result.businessNumber);
+        if (cached?.files?.length) {
+          setCacheLoaded(true);
+          setFiles((prev) => {
+            const existingUrls = new Set(prev.map((f) => f.url));
+            const newFiles = cached.files.filter((f) => !existingUrls.has(f.url));
+            return newFiles.length > 0 ? [...prev, ...newFiles] : prev;
+          });
+        }
+      } catch {}
+    }
+  }, [cacheLoaded]);
 
   async function handleSave(status: ExpenseStatus) {
     if (!pubyUser || !projectId) return;
@@ -59,6 +76,12 @@ export default function VendorForm() {
         amount, netAmount: amount, approvalHistory: [], notifyByEmail, files,
         vendorDetails: { businessNumber, companyName, representative, address, bankName, accountNumber, accountHolder, description },
       } as any);
+
+      // 거래처 문서 캐시 저장
+      if (businessNumber && files.length > 0) {
+        saveVendorCache(businessNumber, companyName, files).catch(() => {});
+      }
+
       if (status === 'submitted') {
         const project = projects.find((p) => p.id === projectId);
         if (project) {
@@ -106,6 +129,9 @@ export default function VendorForm() {
         </div>
         <div><label className={labelClass}>{tv('description')}</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={inputClass} /></div>
         <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="vendor" onOcrResult={handleOcrResult} />
+        {cacheLoaded && (
+          <p className="text-xs text-brand-mint">기존 거래처 서류가 자동으로 불러와졌습니다.</p>
+        )}
         <label className="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" checked={notifyByEmail} onChange={(e) => setNotifyByEmail(e.target.checked)} className="accent-brand-purple" />
           <span className="text-sm text-text-muted">{t('notifyByEmail')}</span>

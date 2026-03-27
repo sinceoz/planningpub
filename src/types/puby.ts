@@ -168,6 +168,21 @@ export interface PubyNotification {
   createdAt: Timestamp;
 }
 
+// === Document Cache (거래처/인력 문서 캐시) ===
+export interface VendorCache {
+  businessNumber: string;
+  companyName: string;
+  files: ExpenseFile[];
+  updatedAt: Timestamp;
+}
+
+export interface LaboreeCache {
+  residentId: string;
+  name: string;
+  files: ExpenseFile[];
+  updatedAt: Timestamp;
+}
+
 // === Settings ===
 export interface PubyScheduleSettings {
   startHour: number;

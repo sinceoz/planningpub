@@ -73,6 +73,16 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /puby_vendors/{vendorId} {
+      allow read: if isPubyUser();
+      allow write: if isPubyUser();
+    }
+
+    match /puby_laborees/{laboreeId} {
+      allow read: if isPubyUser();
+      allow write: if isPubyUser();
+    }
+
     match /puby_settings/{settingId} {
       allow read: if isPubyUser();
       allow write: if isAdmin();
