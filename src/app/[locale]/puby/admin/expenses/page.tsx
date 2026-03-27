@@ -10,14 +10,11 @@ import StatusBadge from '@/components/puby/expense/StatusBadge';
 import { formatCurrency } from '@/lib/puby/format';
 import { Timestamp } from 'firebase/firestore';
 import { notifyExpenseStatusChange } from '@/lib/puby/notifications';
-import type { PubyExpense, ExpenseStatus, ExpenseType, NotificationType } from '@/types/puby';
-import { Check, X, ChevronDown, ChevronUp, Download } from 'lucide-react';
+import type { PubyExpense, ExpenseStatus, NotificationType } from '@/types/puby';
+import { Check, X, ChevronDown, ChevronUp, Download, FileSpreadsheet } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const TYPE_LABELS: Record<string, string> = { labor: '인건비', vendor: '업체', card: '카드' };
-const STATUS_LABELS: Record<string, string> = {
-  submitted: '제출', manager_approved: '팀장승인', approved: '승인', rejected: '반려', completed: '완료',
-};
 
 function getExpenseLabel(exp: PubyExpense) {
   if (exp.type === 'labor') return exp.laborDetails?.name || '';
@@ -27,12 +24,24 @@ function getExpenseLabel(exp: PubyExpense) {
 
 function getBankInfo(exp: PubyExpense) {
   if (exp.type === 'vendor' && exp.vendorDetails) {
-    return { bankName: exp.vendorDetails.bankName, accountNumber: exp.vendorDetails.accountNumber, accountHolder: exp.vendorDetails.accountHolder };
+    return { bankName: exp.vendorDetails.bankName, accountNumber: exp.vendorDetails.accountNumber };
   }
   if (exp.type === 'labor' && exp.laborDetails) {
-    return { bankName: exp.laborDetails.bankName, accountNumber: exp.laborDetails.accountNumber, accountHolder: exp.laborDetails.accountHolder };
+    return { bankName: exp.laborDetails.bankName, accountNumber: exp.laborDetails.accountNumber };
   }
-  return { bankName: '', accountNumber: '', accountHolder: '' };
+  return { bankName: '', accountNumber: '' };
+}
+
+function getBusinessNumber(exp: PubyExpense) {
+  if (exp.type === 'vendor') return exp.vendorDetails?.businessNumber || '';
+  if (exp.type === 'labor') return exp.laborDetails?.residentId || '';
+  return '';
+}
+
+function getDescription(exp: PubyExpense) {
+  if (exp.type === 'vendor') return exp.vendorDetails?.description || '';
+  if (exp.type === 'card') return exp.cardDetails?.description || '';
+  return exp.laborDetails?.workDescription || '';
 }
 
 export default function ExpenseApprovalPage() {
@@ -48,6 +57,7 @@ export default function ExpenseApprovalPage() {
   const [rejectionReason, setRejectionReason] = useState('');
   const [expectedPaymentDate, setExpectedPaymentDate] = useState('');
   const [submitting, setSubmitting] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   if (pubyUser?.role !== 'admin') return null;
 
@@ -61,6 +71,26 @@ export default function ExpenseApprovalPage() {
     if (filterType && exp.type !== filterType) return false;
     return true;
   });
+
+  const allSelected = filtered.length > 0 && filtered.every((e) => selectedIds.has(e.id));
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleSelectAll() {
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(filtered.map((e) => e.id)));
+    }
+  }
+
+  const selectedExpenses = filtered.filter((e) => selectedIds.has(e.id));
 
   async function handleAction(exp: PubyExpense, action: string, newStatus: ExpenseStatus) {
     if (!pubyUser) return;
@@ -108,9 +138,10 @@ export default function ExpenseApprovalPage() {
     );
   }
 
-  function handleExportExcel() {
-    // 참고 양식: *입금은행 | *입금계좌 | 고객관리성명 | *입금액 | 출금통장표시내용 | 입금통장표시내용 | 입금인코드 | 비고 | 업체사용key
-    const rows = filtered.map((exp) => {
+  // 입금용 엑셀: 은행 양식
+  function handleExportPayment() {
+    const target = selectedExpenses.length > 0 ? selectedExpenses : filtered;
+    const rows = target.map((exp) => {
       const bank = getBankInfo(exp);
       return {
         '*입금은행': bank.bankName,
@@ -124,19 +155,42 @@ export default function ExpenseApprovalPage() {
         '업체사용key': '',
       };
     });
-
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-
-    // Column widths
     ws['!cols'] = [
       { wch: 12 }, { wch: 20 }, { wch: 14 }, { wch: 14 },
       { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 14 },
     ];
-
     const today = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(wb, `지결_${filterStatus || '전체'}_${today}.xlsx`);
+    XLSX.writeFile(wb, `입금_${today}.xlsx`);
+  }
+
+  // 리스트업 엑셀: 업체명/사업자번호/은행/계좌/비고/금액/날짜/프로젝트
+  function handleExportList() {
+    const target = selectedExpenses.length > 0 ? selectedExpenses : filtered;
+    const rows = target.map((exp) => {
+      const bank = getBankInfo(exp);
+      return {
+        '업체명': getExpenseLabel(exp),
+        '사업자등록번호': getBusinessNumber(exp),
+        '은행명': bank.bankName,
+        '계좌번호': bank.accountNumber,
+        '비고': getDescription(exp),
+        '금액': exp.type === 'labor' ? exp.netAmount : exp.amount,
+        '지결일자': exp.createdAt?.toDate?.()?.toISOString().slice(0, 10) || '',
+        '프로젝트': projectNames.get(exp.projectId) || '',
+      };
+    });
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    ws['!cols'] = [
+      { wch: 20 }, { wch: 16 }, { wch: 12 }, { wch: 20 },
+      { wch: 24 }, { wch: 14 }, { wch: 12 }, { wch: 16 },
+    ];
+    const today = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(wb, `지결목록_${today}.xlsx`);
   }
 
   const selectClass = "px-3 py-1.5 rounded-lg bg-surface-secondary border border-border-default text-text-primary text-sm focus:outline-none focus:border-brand-purple";
@@ -145,13 +199,24 @@ export default function ExpenseApprovalPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">지결 승인</h1>
-        <button
-          onClick={handleExportExcel}
-          disabled={filtered.length === 0}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border-default text-text-muted hover:text-text-primary text-sm transition-colors disabled:opacity-50"
-        >
-          <Download className="w-4 h-4" /> 엑셀 내보내기
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleExportList}
+            disabled={filtered.length === 0}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border-default text-text-muted hover:text-text-primary text-sm transition-colors disabled:opacity-50"
+          >
+            <FileSpreadsheet className="w-4 h-4" />
+            리스트 내보내기{selectedExpenses.length > 0 && ` (${selectedExpenses.length})`}
+          </button>
+          <button
+            onClick={handleExportPayment}
+            disabled={filtered.length === 0}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border-default text-text-muted hover:text-text-primary text-sm transition-colors disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            입금용 내보내기{selectedExpenses.length > 0 && ` (${selectedExpenses.length})`}
+          </button>
+        </div>
       </div>
 
       {/* 상태 탭 */}
@@ -159,7 +224,7 @@ export default function ExpenseApprovalPage() {
         {(['submitted', 'manager_approved', 'approved', 'rejected', 'completed', ''] as const).map((s) => (
           <button
             key={s}
-            onClick={() => setFilterStatus(s)}
+            onClick={() => { setFilterStatus(s); setSelectedIds(new Set()); }}
             className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
               filterStatus === s
                 ? 'bg-brand-purple text-white'
@@ -172,18 +237,18 @@ export default function ExpenseApprovalPage() {
       </div>
 
       {/* 프로젝트/유형 필터 */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        <select value={filterProject} onChange={(e) => setFilterProject(e.target.value)} className={selectClass}>
+      <div className="flex flex-wrap items-center gap-2 mb-4">
+        <select value={filterProject} onChange={(e) => { setFilterProject(e.target.value); setSelectedIds(new Set()); }} className={selectClass}>
           <option value="">프로젝트: 전체</option>
           {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
-        <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className={selectClass}>
+        <select value={filterType} onChange={(e) => { setFilterType(e.target.value); setSelectedIds(new Set()); }} className={selectClass}>
           <option value="">유형: 전체</option>
           <option value="labor">인건비</option>
           <option value="vendor">업체</option>
           <option value="card">카드</option>
         </select>
-        <span className="text-xs text-text-muted self-center">{filtered.length}건</span>
+        <span className="text-xs text-text-muted">{filtered.length}건</span>
       </div>
 
       {loading ? (
@@ -192,38 +257,59 @@ export default function ExpenseApprovalPage() {
         <div className="text-center text-text-muted py-12">해당하는 결의가 없습니다.</div>
       ) : (
         <div className="space-y-2">
+          {/* 전체 선택 */}
+          <label className="flex items-center gap-2 px-4 py-2 cursor-pointer text-sm text-text-muted hover:text-text-primary">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={toggleSelectAll}
+              className="accent-brand-purple w-4 h-4"
+            />
+            전체 선택 ({selectedIds.size}/{filtered.length})
+          </label>
+
           {filtered.map((exp) => {
             const isExpanded = expandedId === exp.id;
             const isActionable = canApprove(exp);
             const isCompleteActionable = exp.status === 'approved';
             const busy = submitting === exp.id;
+            const isChecked = selectedIds.has(exp.id);
 
             return (
-              <div key={exp.id} className="bg-surface-secondary rounded-lg overflow-hidden">
-                <div
-                  className="flex items-center gap-3 p-4 cursor-pointer"
-                  onClick={() => { setExpandedId(isExpanded ? null : exp.id); setRejectionReason(''); setExpectedPaymentDate(''); }}
-                >
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-text-primary truncate">
-                        {getExpenseLabel(exp) || projectNames.get(exp.projectId) || '-'}
-                      </span>
-                      <span className="text-xs text-text-muted">{TYPE_LABELS[exp.type]}</span>
+              <div key={exp.id} className={`rounded-lg overflow-hidden transition-colors ${isChecked ? 'bg-brand-purple/5 ring-1 ring-brand-purple/20' : 'bg-surface-secondary'}`}>
+                <div className="flex items-center gap-3 p-4">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => toggleSelect(exp.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="accent-brand-purple w-4 h-4 shrink-0"
+                  />
+                  <div
+                    className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+                    onClick={() => { setExpandedId(isExpanded ? null : exp.id); setRejectionReason(''); setExpectedPaymentDate(''); }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-text-primary truncate">
+                          {getExpenseLabel(exp) || projectNames.get(exp.projectId) || '-'}
+                        </span>
+                        <span className="text-xs text-text-muted">{TYPE_LABELS[exp.type]}</span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
+                        <span>{projectNames.get(exp.projectId)}</span>
+                        <span>{exp.createdAt?.toDate?.()?.toISOString().slice(0, 10)}</span>
+                        {exp.expectedPaymentDate && (
+                          <span className="text-brand-mint">입금예정: {exp.expectedPaymentDate}</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
-                      <span>{projectNames.get(exp.projectId)}</span>
-                      <span>{exp.createdAt?.toDate?.()?.toISOString().slice(0, 10)}</span>
-                      {exp.expectedPaymentDate && (
-                        <span className="text-brand-mint">입금예정: {exp.expectedPaymentDate}</span>
-                      )}
-                    </div>
+                    <span className="text-sm font-medium text-text-primary whitespace-nowrap">
+                      {formatCurrency(exp.amount)}
+                    </span>
+                    <StatusBadge status={exp.status} />
+                    {isExpanded ? <ChevronUp className="w-4 h-4 text-text-muted" /> : <ChevronDown className="w-4 h-4 text-text-muted" />}
                   </div>
-                  <span className="text-sm font-medium text-text-primary whitespace-nowrap">
-                    {formatCurrency(exp.amount)}
-                  </span>
-                  <StatusBadge status={exp.status} />
-                  {isExpanded ? <ChevronUp className="w-4 h-4 text-text-muted" /> : <ChevronDown className="w-4 h-4 text-text-muted" />}
                 </div>
 
                 {isExpanded && (
