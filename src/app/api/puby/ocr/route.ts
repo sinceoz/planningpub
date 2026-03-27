@@ -42,6 +42,9 @@ export async function POST(req: NextRequest) {
 - 비고(description) → 세금계산서의 품목 란 중 맨 위(첫 번째) 항목명
 
 중요: 이름/상호 뒤에 붙는 경칭('귀하', '님', '귀중', '앞' 등)은 반드시 제거하세요.
+또한 각 파일이 어떤 문서인지 순서대로 분류해주세요 (fileTags 배열).
+태그: biz_registration(사업자등록증), bankbook(통장사본), tax_invoice(세금계산서), etc(기타)
+
 없는 항목은 빈 문자열로, amount는 0으로:
 {
   "companyName": "",
@@ -52,7 +55,8 @@ export async function POST(req: NextRequest) {
   "accountNumber": "",
   "accountHolder": "",
   "amount": 0,
-  "description": "세금계산서 첫 번째 품목명"
+  "description": "세금계산서 첫 번째 품목명",
+  "fileTags": ["biz_registration", "bankbook", "tax_invoice"]
 }
 JSON만 반환하세요.`,
       labor: `아래 이미지/PDF 파일들은 한국 인건비 지출결의에 사용되는 서류들입니다.
@@ -63,6 +67,9 @@ JSON만 반환하세요.`,
 - 은행명(bankName), 계좌번호(accountNumber), 예금주(accountHolder) → 통장사본에서
 
 중요: 이름 뒤에 붙는 경칭('귀하', '님', '귀중', '앞' 등)은 반드시 제거하세요.
+또한 각 파일이 어떤 문서인지 순서대로 분류해주세요 (fileTags 배열).
+태그: id_card(신분증), bankbook(통장사본), etc(기타)
+
 없는 항목은 빈 문자열로:
 {
   "name": "",
@@ -70,7 +77,8 @@ JSON만 반환하세요.`,
   "address": "",
   "bankName": "",
   "accountNumber": "",
-  "accountHolder": ""
+  "accountHolder": "",
+  "fileTags": ["id_card", "bankbook"]
 }
 JSON만 반환하세요.`,
       card: `이 이미지/PDF는 한국 카드 영수증 또는 결제 내역입니다.

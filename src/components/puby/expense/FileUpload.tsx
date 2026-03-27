@@ -25,6 +25,8 @@ export interface OcrResult {
   // labor fields
   name?: string;
   residentId?: string;
+  // file classification tags (순서대로 각 파일에 대응)
+  fileTags?: string[];
 }
 
 interface FileUploadProps {
@@ -54,6 +56,18 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
       });
       if (res.ok) {
         const data = await res.json();
+        // fileTags로 파일에 태그 적용
+        if (data.fileTags && Array.isArray(data.fileTags)) {
+          const ocrableFiles = files.filter((f) => f.type.startsWith('image/') || f.type === 'application/pdf');
+          const updated = files.map((f) => {
+            const idx = ocrableFiles.indexOf(f);
+            if (idx >= 0 && idx < data.fileTags.length) {
+              return { ...f, tag: data.fileTags[idx] };
+            }
+            return f;
+          });
+          onChange(updated);
+        }
         onOcrResult(data);
       }
     } catch (err) {
@@ -61,7 +75,7 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
     } finally {
       setAnalyzing(false);
     }
-  }, [ocrType, onOcrResult]);
+  }, [ocrType, onOcrResult, onChange, files]);
 
   const uploadFiles = useCallback(async (fileList: FileList) => {
     setUploading(true);

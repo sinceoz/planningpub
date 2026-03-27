@@ -93,6 +93,8 @@ export interface ExpenseFile {
   name: string;
   url: string;
   type: string;
+  /** 문서 분류 태그 (OCR 분석 또는 수동 지정) */
+  tag?: 'biz_registration' | 'bankbook' | 'tax_invoice' | 'id_card' | 'etc';
 }
 
 export interface LaborDetails {
