@@ -22,6 +22,10 @@
   --color-text-muted: rgba(240, 240, 245, 0.5);
   --color-text-dim: rgba(240, 240, 245, 0.35);
 
+  /* PUBY 서피스 */
+  --color-surface-primary: #12121c;
+  --color-surface-secondary: #1a1a28;
+
   /* 보더 */
   --color-border-default: rgba(255, 255, 255, 0.08);
   --color-border-hover: rgba(255, 255, 255, 0.15);
@@ -49,6 +53,31 @@
   --animate-float: float 6s ease-in-out infinite;
   --animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
   --animate-shimmer: shimmer 2s linear infinite;
+}
+
+/* === PUBY ERP 라이트모드 오버라이드 === */
+.puby-light {
+  --color-bg-dark: #f5f5f7;
+  --color-bg-card: #ffffff;
+  --color-bg-card-hover: #f0f0f2;
+  --color-bg-surface: rgba(0, 0, 0, 0.02);
+  --color-bg-surface-hover: rgba(0, 0, 0, 0.04);
+  --color-surface-primary: #ffffff;
+  --color-surface-secondary: #f0f0f2;
+  --color-text-primary: #1a1a2e;
+  --color-text-muted: rgba(26, 26, 46, 0.55);
+  --color-text-dim: rgba(26, 26, 46, 0.35);
+  --color-border-default: rgba(0, 0, 0, 0.1);
+  --color-border-hover: rgba(0, 0, 0, 0.2);
+  background: #f5f5f7;
+  color: #1a1a2e;
+}
+
+/* select/dropdown 다크모드 대응 */
+select,
+select option {
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
 }
 
 /* 글로벌 스타일 */
