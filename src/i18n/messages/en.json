@@ -200,7 +200,38 @@
       "logout": "Sign Out"
     },
     "dashboard": {
-      "title": "Dashboard"
+      "title": "Dashboard",
+      "welcome": "Hello, {name}",
+      "todayTasks": "Today's Tasks",
+      "completedOf": "{done}/{total} completed",
+      "noTasksToday": "No tasks scheduled for today.",
+      "pendingExpenses": "Pending Approval",
+      "myPendingExpenses": "My Pending Expenses",
+      "noPending": "No pending expenses.",
+      "recentActivity": "Recent Activity",
+      "noActivity": "No recent activity.",
+      "monthlyExpense": "This Month's Expenses",
+      "totalExpense": "Total Spent",
+      "byProject": "By Project",
+      "employeeOverview": "Employee Overview",
+      "registered": "Registered",
+      "totalEmployees": "Total Employees",
+      "viewAll": "View All",
+      "approvalWaiting": "{count} pending approval"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "markAllRead": "Mark all read",
+      "noNotifications": "No notifications.",
+      "justNow": "Just now",
+      "minutesAgo": "{min}m ago",
+      "hoursAgo": "{hours}h ago",
+      "daysAgo": "{days}d ago",
+      "expenseSubmitted": "New expense submitted",
+      "expenseApproved": "Expense approved",
+      "expenseRejected": "Expense rejected",
+      "expenseCompleted": "Expense completed",
+      "expenseManagerApproved": "Expense manager-approved"
     },
     "common": {
       "loading": "Loading...",

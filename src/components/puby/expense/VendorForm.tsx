@@ -7,6 +7,7 @@ import { usePubyAuth } from '@/hooks/puby/useAuth';
 import { useExpenses } from '@/hooks/puby/useExpenses';
 import { useProjects } from '@/hooks/puby/useProjects';
 import FileUpload, { type OcrResult } from './FileUpload';
+import { notifyExpenseSubmitted } from '@/lib/puby/notifications';
 import type { ExpenseFile, ExpenseStatus } from '@/types/puby';
 
 export default function VendorForm() {
@@ -47,11 +48,23 @@ export default function VendorForm() {
     if (!pubyUser || !projectId) return;
     setSubmitting(true);
     try {
-      await createExpense({
+      const newId = await createExpense({
         type: 'vendor', projectId, createdBy: pubyUser.uid, status,
         amount, netAmount: amount, approvalHistory: [], notifyByEmail, files,
         vendorDetails: { businessNumber, companyName, representative, address, bankName, accountNumber, accountHolder, description },
       } as any);
+      if (status === 'submitted') {
+        const project = projects.find((p) => p.id === projectId);
+        if (project) {
+          notifyExpenseSubmitted({
+            expenseId: newId,
+            project,
+            actorName: pubyUser.displayName,
+            actorUid: pubyUser.uid,
+            expenseTitle: companyName || '업체비',
+          }).catch(() => {});
+        }
+      }
       router.push('/puby/expense');
     } finally { setSubmitting(false); }
   }

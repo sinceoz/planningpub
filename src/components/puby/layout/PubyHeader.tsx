@@ -2,7 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
-import { Bell, Sun, Moon, LogOut } from 'lucide-react';
+import { Sun, Moon, LogOut } from 'lucide-react';
+import NotificationBell from '@/components/puby/notifications/NotificationBell';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
@@ -29,12 +30,7 @@ export default function PubyHeader() {
       </div>
 
       <div className="flex items-center gap-2">
-        <button
-          className="relative p-2 text-text-muted hover:text-text-primary transition-colors rounded-lg hover:bg-surface-secondary"
-          aria-label={t('notifications')}
-        >
-          <Bell className="w-4 h-4" />
-        </button>
+        <NotificationBell />
 
         <button
           onClick={toggleTheme}

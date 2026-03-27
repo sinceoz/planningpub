@@ -8,6 +8,7 @@ import { useExpenses } from '@/hooks/puby/useExpenses';
 import { useProjects } from '@/hooks/puby/useProjects';
 import { Timestamp } from 'firebase/firestore';
 import FileUpload, { type OcrResult } from './FileUpload';
+import { notifyExpenseSubmitted } from '@/lib/puby/notifications';
 import type { ExpenseFile, ExpenseStatus } from '@/types/puby';
 
 export default function CardForm() {
@@ -41,7 +42,7 @@ export default function CardForm() {
     if (!pubyUser || !projectId) return;
     setSubmitting(true);
     try {
-      await createExpense({
+      const newId = await createExpense({
         type: 'card', projectId, createdBy: pubyUser.uid, status,
         amount, netAmount: amount, approvalHistory: [], notifyByEmail, files,
         cardDetails: {
@@ -51,6 +52,18 @@ export default function CardForm() {
           description, reason,
         },
       } as any);
+      if (status === 'submitted') {
+        const project = projects.find((p) => p.id === projectId);
+        if (project) {
+          notifyExpenseSubmitted({
+            expenseId: newId,
+            project,
+            actorName: pubyUser.displayName,
+            actorUid: pubyUser.uid,
+            expenseTitle: storeName || '카드',
+          }).catch(() => {});
+        }
+      }
       router.push('/puby/expense');
     } finally { setSubmitting(false); }
   }

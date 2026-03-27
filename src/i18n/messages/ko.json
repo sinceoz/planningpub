@@ -200,7 +200,38 @@
       "logout": "로그아웃"
     },
     "dashboard": {
-      "title": "대시보드"
+      "title": "대시보드",
+      "welcome": "{name}님, 안녕하세요",
+      "todayTasks": "오늘 할일",
+      "completedOf": "{done}/{total} 완료",
+      "noTasksToday": "오늘 등록된 할일이 없습니다.",
+      "pendingExpenses": "승인 대기",
+      "myPendingExpenses": "내 대기 결의",
+      "noPending": "대기 중인 결의서가 없습니다.",
+      "recentActivity": "최근 활동",
+      "noActivity": "최근 활동이 없습니다.",
+      "monthlyExpense": "이번 달 지출",
+      "totalExpense": "총 지출액",
+      "byProject": "프로젝트별",
+      "employeeOverview": "직원 현황",
+      "registered": "등록",
+      "totalEmployees": "전체 직원",
+      "viewAll": "전체 보기",
+      "approvalWaiting": "결재 대기 {count}건"
+    },
+    "notifications": {
+      "title": "알림",
+      "markAllRead": "모두 읽음",
+      "noNotifications": "알림이 없습니다.",
+      "justNow": "방금",
+      "minutesAgo": "{min}분 전",
+      "hoursAgo": "{hours}시간 전",
+      "daysAgo": "{days}일 전",
+      "expenseSubmitted": "새 결의서가 제출되었습니다",
+      "expenseApproved": "결의서가 승인되었습니다",
+      "expenseRejected": "결의서가 반려되었습니다",
+      "expenseCompleted": "결의서가 완료 처리되었습니다",
+      "expenseManagerApproved": "결의서가 팀장 승인되었습니다"
     },
     "common": {
       "loading": "로딩 중...",

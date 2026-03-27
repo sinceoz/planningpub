@@ -9,6 +9,7 @@ import { useProjects } from '@/hooks/puby/useProjects';
 import { calculateTaxDeduction } from '@/lib/puby/tax';
 import { formatCurrency } from '@/lib/puby/format';
 import FileUpload, { type OcrResult } from './FileUpload';
+import { notifyExpenseSubmitted } from '@/lib/puby/notifications';
 import type { ExpenseFile, IncomeType, ExpenseStatus } from '@/types/puby';
 import { Info } from 'lucide-react';
 
@@ -52,7 +53,7 @@ export default function LaborForm() {
     if (!pubyUser || !projectId) return;
     setSubmitting(true);
     try {
-      await createExpense({
+      const newId = await createExpense({
         type: 'labor',
         projectId,
         createdBy: pubyUser.uid,
@@ -70,6 +71,18 @@ export default function LaborForm() {
           workDescription,
         },
       } as any);
+      if (status === 'submitted') {
+        const project = projects.find((p) => p.id === projectId);
+        if (project) {
+          notifyExpenseSubmitted({
+            expenseId: newId,
+            project,
+            actorName: pubyUser.displayName,
+            actorUid: pubyUser.uid,
+            expenseTitle: name || '인건비',
+          }).catch(() => {});
+        }
+      }
       router.push('/puby/expense');
     } finally {
       setSubmitting(false);

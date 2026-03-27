@@ -5,7 +5,8 @@ import { useTranslations } from 'next-intl';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
 import { useExpenses } from '@/hooks/puby/useExpenses';
 import { Timestamp } from 'firebase/firestore';
-import type { PubyExpense, PubyProject } from '@/types/puby';
+import type { PubyExpense, PubyProject, NotificationType } from '@/types/puby';
+import { notifyExpenseStatusChange } from '@/lib/puby/notifications';
 
 interface ApprovalActionsProps {
   expense: PubyExpense;
@@ -44,6 +45,29 @@ export default function ApprovalActions({ expense, project }: ApprovalActionsPro
         approvalHistory: [...expense.approvalHistory, entry],
         ...(action === 'reject' ? { rejectionReason } : {}),
       });
+
+      // Send notification to expense creator
+      const notifTypeMap: Record<string, NotificationType> = {
+        manager_approve: 'expense_manager_approved',
+        approve: 'expense_approved',
+        reject: 'expense_rejected',
+        complete: 'expense_completed',
+      };
+      const notifType = notifTypeMap[action];
+      if (notifType && expense.createdBy !== pubyUser!.uid) {
+        const expenseLabel = expense.type === 'labor'
+          ? expense.laborDetails?.name
+          : expense.type === 'vendor'
+            ? expense.vendorDetails?.companyName
+            : expense.cardDetails?.storeName;
+        notifyExpenseStatusChange({
+          expenseId: expense.id,
+          targetUserId: expense.createdBy,
+          type: notifType,
+          actorName: pubyUser!.displayName,
+          expenseTitle: expenseLabel || expense.type,
+        }).catch(() => {}); // don't block approval on notification failure
+      }
     } finally { setSubmitting(false); }
   }
 
@@ -89,7 +113,7 @@ export default function ApprovalActions({ expense, project }: ApprovalActionsPro
               {t('reject')}
             </button>
             <button onClick={() => setShowRejectForm(false)} className="px-4 py-2 rounded-lg border border-border-default text-text-muted text-sm">
-              취소
+              {t('cancel')}
             </button>
           </div>
         </div>
