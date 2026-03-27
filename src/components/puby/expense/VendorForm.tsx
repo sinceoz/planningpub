@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
@@ -17,6 +17,12 @@ export default function VendorForm() {
   const { pubyUser } = usePubyAuth();
   const { createExpense } = useExpenses();
   const { projects } = useProjects();
+
+  const folderId = useMemo(() => {
+    const now = new Date();
+    const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    return `puby/expenses/vendor/${ym}/${Date.now()}`;
+  }, []);
 
   const [projectId, setProjectId] = useState('');
   const [amount, setAmount] = useState(0);
@@ -99,7 +105,7 @@ export default function VendorForm() {
           <div><label className={labelClass}>{tv('accountHolder')}</label><input type="text" value={accountHolder} onChange={(e) => setAccountHolder(e.target.value)} required className={inputClass} /></div>
         </div>
         <div><label className={labelClass}>{tv('description')}</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={inputClass} /></div>
-        <FileUpload files={files} onChange={setFiles} storagePath="puby/expenses/vendor" ocrType="vendor" onOcrResult={handleOcrResult} />
+        <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="vendor" onOcrResult={handleOcrResult} />
         <label className="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" checked={notifyByEmail} onChange={(e) => setNotifyByEmail(e.target.checked)} className="accent-brand-purple" />
           <span className="text-sm text-text-muted">{t('notifyByEmail')}</span>

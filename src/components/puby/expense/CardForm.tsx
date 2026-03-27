@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
@@ -18,6 +18,12 @@ export default function CardForm() {
   const { pubyUser } = usePubyAuth();
   const { createExpense } = useExpenses();
   const { projects } = useProjects();
+
+  const folderId = useMemo(() => {
+    const now = new Date();
+    const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    return `puby/expenses/card/${ym}/${Date.now()}`;
+  }, []);
 
   const [projectId, setProjectId] = useState('');
   const [amount, setAmount] = useState(0);
@@ -91,7 +97,7 @@ export default function CardForm() {
         <div><label className={labelClass}>{tc('cardLastFour')}</label><input type="text" value={cardLastFour} onChange={(e) => setCardLastFour(e.target.value)} maxLength={4} className={`${inputClass} max-w-[120px]`} placeholder="0000" /></div>
         <div><label className={labelClass}>{tc('description')}</label><input type="text" value={description} onChange={(e) => setDescription(e.target.value)} required className={inputClass} /></div>
         <div><label className={labelClass}>{tc('reason')}</label><textarea value={reason} onChange={(e) => setReason(e.target.value)} required rows={3} className={inputClass} /></div>
-        <FileUpload files={files} onChange={setFiles} storagePath="puby/expenses/card" ocrType="card" onOcrResult={handleOcrResult} />
+        <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="card" onOcrResult={handleOcrResult} />
         <label className="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" checked={notifyByEmail} onChange={(e) => setNotifyByEmail(e.target.checked)} className="accent-brand-purple" />
           <span className="text-sm text-text-muted">{t('notifyByEmail')}</span>

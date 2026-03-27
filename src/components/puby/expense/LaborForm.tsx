@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
@@ -21,6 +21,12 @@ export default function LaborForm() {
   const { pubyUser } = usePubyAuth();
   const { createExpense } = useExpenses();
   const { projects } = useProjects();
+
+  const folderId = useMemo(() => {
+    const now = new Date();
+    const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    return `puby/expenses/labor/${ym}/${Date.now()}`;
+  }, []);
 
   const [projectId, setProjectId] = useState('');
   const [amount, setAmount] = useState(0);
@@ -165,7 +171,7 @@ export default function LaborForm() {
         <div><label className={labelClass}>{tl('workDescription')}</label><textarea value={workDescription} onChange={(e) => setWorkDescription(e.target.value)} required rows={3} className={inputClass} /></div>
 
         {/* Files */}
-        <FileUpload files={files} onChange={setFiles} storagePath={`puby/expenses/labor`} ocrType="labor" onOcrResult={handleOcrResult} />
+        <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="labor" onOcrResult={handleOcrResult} />
 
         {/* Notify */}
         <label className="flex items-center gap-2 cursor-pointer">

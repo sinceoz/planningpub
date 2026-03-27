@@ -43,7 +43,8 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
   const [dragOver, setDragOver] = useState(false);
 
   const runOcr = useCallback(async (url: string, mimeType: string) => {
-    if (!ocrType || !onOcrResult || !mimeType.startsWith('image/')) return;
+    if (!ocrType || !onOcrResult) return;
+    if (!mimeType.startsWith('image/') && mimeType !== 'application/pdf') return;
     setAnalyzing(true);
     try {
       const res = await fetch('/api/puby/ocr', {
@@ -66,23 +67,23 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
     setUploading(true);
     try {
       const newFiles: ExpenseFile[] = [];
-      let firstImageUrl = '';
-      let firstImageType = '';
+      let firstOcrUrl = '';
+      let firstOcrType = '';
       for (const file of Array.from(fileList)) {
         if (file.size > 10 * 1024 * 1024) continue;
-        const storageRef = ref(storage, `${storagePath}/${Date.now()}-${file.name}`);
+        const storageRef = ref(storage, `${storagePath}/${file.name}`);
         await uploadBytes(storageRef, file);
         const url = await getDownloadURL(storageRef);
         newFiles.push({ name: file.name, url, type: file.type });
-        if (!firstImageUrl && file.type.startsWith('image/')) {
-          firstImageUrl = url;
-          firstImageType = file.type;
+        if (!firstOcrUrl && (file.type.startsWith('image/') || file.type === 'application/pdf')) {
+          firstOcrUrl = url;
+          firstOcrType = file.type;
         }
       }
       onChange([...files, ...newFiles]);
-      // Auto-run OCR on first uploaded image
-      if (firstImageUrl) {
-        runOcr(firstImageUrl, firstImageType);
+      // Auto-run OCR on first uploaded image or PDF
+      if (firstOcrUrl) {
+        runOcr(firstOcrUrl, firstOcrType);
       }
     } finally {
       setUploading(false);

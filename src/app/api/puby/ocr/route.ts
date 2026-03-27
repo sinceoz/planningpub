@@ -15,11 +15,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'GEMINI_API_KEY not configured' }, { status: 500 });
     }
 
-    // Fetch image and convert to base64
-    const imageResponse = await fetch(imageUrl);
-    const arrayBuffer = await imageResponse.arrayBuffer();
+    // Fetch file and convert to base64
+    const fileResponse = await fetch(imageUrl);
+    const arrayBuffer = await fileResponse.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString('base64');
-    const mimeType = imageResponse.headers.get('content-type') || 'image/jpeg';
+    const mimeType = fileResponse.headers.get('content-type') || 'image/jpeg';
+
+    const supportedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+    if (!supportedTypes.some((t) => mimeType.startsWith(t.split('/')[0]) || mimeType === t)) {
+      return NextResponse.json({ error: `Unsupported file type: ${mimeType}` }, { status: 400 });
+    }
 
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
