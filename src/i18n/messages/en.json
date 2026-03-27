@@ -192,6 +192,7 @@
       "admin": "Admin",
       "employees": "Employees",
       "projects": "Projects",
+      "expenseApproval": "Expense Approval",
       "settings": "Settings"
     },
     "header": {

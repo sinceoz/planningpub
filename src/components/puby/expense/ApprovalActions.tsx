@@ -18,6 +18,7 @@ export default function ApprovalActions({ expense, project }: ApprovalActionsPro
   const { pubyUser } = usePubyAuth();
   const { updateExpense } = useExpenses();
   const [rejectionReason, setRejectionReason] = useState('');
+  const [expectedPaymentDate, setExpectedPaymentDate] = useState('');
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -44,6 +45,7 @@ export default function ApprovalActions({ expense, project }: ApprovalActionsPro
         status: newStatus as any,
         approvalHistory: [...expense.approvalHistory, entry],
         ...(action === 'reject' ? { rejectionReason } : {}),
+        ...(action === 'approve' && expectedPaymentDate ? { expectedPaymentDate } : {}),
       });
 
       // Send notification to expense creator
@@ -75,6 +77,17 @@ export default function ApprovalActions({ expense, project }: ApprovalActionsPro
 
   return (
     <div className="border-t border-border-default pt-4 mt-6">
+      {(canManagerApprove || canAdminApprove) && (
+        <div className="flex items-center gap-2 mb-3">
+          <label className="text-sm text-text-muted">{t('paymentDate')}</label>
+          <input
+            type="date"
+            value={expectedPaymentDate}
+            onChange={(e) => setExpectedPaymentDate(e.target.value)}
+            className="px-3 py-1.5 rounded-lg bg-surface-secondary border border-border-default focus:border-brand-purple focus:outline-none text-text-primary text-sm"
+          />
+        </div>
+      )}
       <div className="flex flex-wrap gap-2">
         {canManagerApprove && (
           <button onClick={() => handleAction('manager_approve', 'manager_approved')} disabled={submitting}

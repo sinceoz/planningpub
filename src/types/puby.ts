@@ -138,6 +138,7 @@ export interface PubyExpense {
   approvalHistory: ApprovalHistoryEntry[];
   rejectionReason?: string;
   paymentDate?: Timestamp;
+  expectedPaymentDate?: string;
   paymentProof?: string;
   notifyByEmail: boolean;
   files: ExpenseFile[];

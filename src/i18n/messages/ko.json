@@ -192,6 +192,7 @@
       "admin": "관리",
       "employees": "직원 관리",
       "projects": "프로젝트 관리",
+      "expenseApproval": "지결 승인",
       "settings": "설정"
     },
     "header": {

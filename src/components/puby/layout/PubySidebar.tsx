@@ -40,6 +40,7 @@ const NAV_ITEMS: NavItem[] = [
     children: [
       { href: '/puby/admin', labelKey: 'employees' },
       { href: '/puby/admin/projects', labelKey: 'projects' },
+      { href: '/puby/admin/expenses', labelKey: 'expenseApproval' },
       { href: '/puby/admin/settings', labelKey: 'settings' },
     ],
   },

@@ -90,6 +90,7 @@ export default function ExpenseTable() {
                 <th className="py-3 px-3">{t('filterType')}</th>
                 <th className="py-3 px-3 text-right">{t('amount')}</th>
                 <th className="py-3 px-3">{t('status')}</th>
+                <th className="py-3 px-3">{t('paymentDate')}</th>
               </tr>
             </thead>
             <tbody>
@@ -104,6 +105,7 @@ export default function ExpenseTable() {
                   <td className="py-3 px-3 text-text-muted">{TYPE_LABELS[exp.type] || exp.type}</td>
                   <td className="py-3 px-3 text-right text-text-primary font-medium">{formatCurrency(exp.amount)}</td>
                   <td className="py-3 px-3"><StatusBadge status={exp.status} /></td>
+                  <td className="py-3 px-3 text-text-muted text-sm">{exp.expectedPaymentDate || '-'}</td>
                 </tr>
               ))}
             </tbody>
