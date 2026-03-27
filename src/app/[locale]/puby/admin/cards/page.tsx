@@ -12,7 +12,7 @@ export default function CardsPage() {
   const [cards, setCards] = useState<PubyCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [label, setLabel] = useState('');
-  const [lastFour, setLastFour] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -24,17 +24,20 @@ export default function CardsPage() {
     return unsub;
   }, []);
 
+  const digits = cardNumber.replace(/\D/g, '');
+  const lastFour = digits.slice(-4);
+
   const handleAdd = useCallback(async () => {
-    if (!label || !lastFour) return;
+    if (!label || digits.length < 4) return;
     setSubmitting(true);
     try {
-      await addDoc(collection(db, 'puby_cards'), { label, lastFour, createdAt: Timestamp.now() });
+      await addDoc(collection(db, 'puby_cards'), { label, cardNumber: digits, lastFour: digits.slice(-4), createdAt: Timestamp.now() });
       setLabel('');
-      setLastFour('');
+      setCardNumber('');
     } finally {
       setSubmitting(false);
     }
-  }, [label, lastFour]);
+  }, [label, digits]);
 
   async function handleDelete(id: string) {
     await deleteDoc(doc(db, 'puby_cards', id));
@@ -59,15 +62,18 @@ export default function CardsPage() {
         />
         <input
           type="text"
-          value={lastFour}
-          onChange={(e) => setLastFour(e.target.value.replace(/\D/g, '').slice(0, 4))}
-          placeholder="끝 4자리"
-          maxLength={4}
-          className={`${inputClass} w-28`}
+          value={cardNumber}
+          onChange={(e) => {
+            const raw = e.target.value.replace(/\D/g, '').slice(0, 16);
+            setCardNumber(raw.replace(/(\d{4})(?=\d)/g, '$1-'));
+          }}
+          placeholder="카드번호 (0000-0000-0000-0000)"
+          maxLength={19}
+          className={`${inputClass} w-52`}
         />
         <button
           onClick={handleAdd}
-          disabled={submitting || !label || lastFour.length !== 4}
+          disabled={submitting || !label || digits.length < 4}
           className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-brand-purple to-brand-mint text-white text-sm font-semibold disabled:opacity-50"
         >
           <Plus className="w-4 h-4" /> 추가
@@ -85,7 +91,11 @@ export default function CardsPage() {
             <div key={card.id} className="flex items-center justify-between p-4 bg-surface-secondary rounded-lg">
               <div>
                 <span className="text-sm font-medium text-text-primary">{card.label}</span>
-                <span className="text-sm text-text-muted ml-2">****{card.lastFour}</span>
+                <span className="text-sm text-text-muted ml-2 font-mono">
+                  {card.cardNumber
+                    ? `${card.cardNumber.slice(0, 4)}-****-****-${card.cardNumber.slice(-4)}`
+                    : `****${card.lastFour}`}
+                </span>
               </div>
               <button onClick={() => handleDelete(card.id)} className="p-2 text-text-muted hover:text-red-400 transition-colors">
                 <Trash2 className="w-4 h-4" />

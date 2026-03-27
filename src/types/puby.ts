@@ -192,6 +192,7 @@ export interface LaboreeCache {
 export interface PubyCard {
   id: string;
   label: string;
+  cardNumber: string;
   lastFour: string;
   createdAt: Timestamp;
 }
