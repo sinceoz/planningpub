@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
 - 은행명(bankName), 계좌번호(accountNumber), 예금주(accountHolder) → 통장사본에서
 - 비고(description) → 세금계산서의 품목 란 중 맨 위(첫 번째) 항목명
 
+중요: 이름/상호 뒤에 붙는 경칭('귀하', '님', '귀중', '앞' 등)은 반드시 제거하세요.
 없는 항목은 빈 문자열로, amount는 0으로:
 {
   "companyName": "",
@@ -61,6 +62,7 @@ JSON만 반환하세요.`,
 - 성명(name), 주민등록번호(residentId), 주소(address) → 신분증에서
 - 은행명(bankName), 계좌번호(accountNumber), 예금주(accountHolder) → 통장사본에서
 
+중요: 이름 뒤에 붙는 경칭('귀하', '님', '귀중', '앞' 등)은 반드시 제거하세요.
 없는 항목은 빈 문자열로:
 {
   "name": "",
