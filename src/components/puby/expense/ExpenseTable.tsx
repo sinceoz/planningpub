@@ -8,8 +8,7 @@ import { useProjects } from '@/hooks/puby/useProjects';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
 import StatusBadge from './StatusBadge';
 import { formatCurrency } from '@/lib/puby/format';
-import { exportExpensesToCsv } from '@/lib/puby/csv';
-import { Download, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import type { ExpenseType, ExpenseStatus } from '@/types/puby';
 
 const TYPE_LABELS: Record<string, string> = { labor: '인건비', vendor: '업체', card: '카드' };
@@ -36,23 +35,13 @@ export default function ExpenseTable() {
   const projectNames = new Map(projects.map((p) => [p.id, p.name]));
   const selectClass = "px-3 py-1.5 rounded-lg bg-surface-secondary border border-border-default text-text-primary text-sm focus:outline-none focus:border-brand-purple";
 
-  function handleExport() {
-    const userNames = new Map<string, string>();
-    exportExpensesToCsv(expenses, projectNames, userNames);
-  }
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">{t('list')}</h1>
-        <div className="flex gap-2">
-          <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border-default text-text-muted hover:text-text-primary text-sm transition-colors">
-            <Download className="w-4 h-4" />{t('exportCsv')}
-          </button>
-          <Link href="/puby/expense/new/labor" className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-brand-purple to-brand-mint text-white text-sm font-semibold hover:shadow-lg transition-all">
-            <Plus className="w-4 h-4" />{t('newExpense')}
-          </Link>
-        </div>
+        <Link href="/puby/expense/new/labor" className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-gradient-to-r from-brand-purple to-brand-mint text-white text-sm font-semibold hover:shadow-lg transition-all">
+          <Plus className="w-4 h-4" />{t('newExpense')}
+        </Link>
       </div>
 
       {/* Filters */}
