@@ -142,6 +142,7 @@ export interface PubyExpense {
   paymentProof?: string;
   notifyByEmail: boolean;
   files: ExpenseFile[];
+  extraFiles?: ExpenseFile[];
   laborDetails?: LaborDetails;
   vendorDetails?: VendorDetails;
   cardDetails?: CardDetails;

@@ -91,9 +91,20 @@ export default function ExpenseDetailPage() {
       {/* Files */}
       {expense.files.length > 0 && (
         <div className="mt-6">
-          <h3 className="text-sm font-medium text-text-primary mb-2">첨부파일</h3>
+          <h3 className="text-sm font-medium text-text-primary mb-2">증빙 서류</h3>
           <div className="space-y-1">
             {expense.files.map((f, i) => (
+              <a key={i} href={f.url} target="_blank" rel="noopener noreferrer" className="block text-sm text-brand-purple hover:underline">{f.name}</a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {expense.extraFiles && expense.extraFiles.length > 0 && (
+        <div className="mt-4">
+          <h3 className="text-sm font-medium text-text-primary mb-2">기타 서류</h3>
+          <div className="space-y-1">
+            {expense.extraFiles.map((f, i) => (
               <a key={i} href={f.url} target="_blank" rel="noopener noreferrer" className="block text-sm text-brand-purple hover:underline">{f.name}</a>
             ))}
           </div>

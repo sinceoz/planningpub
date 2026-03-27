@@ -47,7 +47,7 @@ service cloud.firestore {
                        && request.resource.data.status in ['draft', 'submitted']
                        && request.resource.data.createdBy == request.auth.uid;
       allow update: if (request.auth.uid == resource.data.createdBy
-                         && resource.data.status in ['draft', 'rejected'])
+                         && resource.data.status in ['draft', 'submitted', 'rejected'])
                      || (isAssignedManager()
                          && resource.data.status == 'submitted'
                          && request.resource.data.status in ['manager_approved', 'rejected'])

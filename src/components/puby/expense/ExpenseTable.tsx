@@ -8,7 +8,7 @@ import { useProjects } from '@/hooks/puby/useProjects';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
 import StatusBadge from './StatusBadge';
 import { formatCurrency } from '@/lib/puby/format';
-import { Plus } from 'lucide-react';
+import { Plus, Pencil } from 'lucide-react';
 import type { ExpenseType, ExpenseStatus } from '@/types/puby';
 
 const TYPE_LABELS: Record<string, string> = { labor: '인건비', vendor: '업체', card: '카드' };
@@ -80,6 +80,7 @@ export default function ExpenseTable() {
                 <th className="py-3 px-3 text-right">{t('amount')}</th>
                 <th className="py-3 px-3">{t('status')}</th>
                 <th className="py-3 px-3">{t('paymentDate')}</th>
+                <th className="py-3 px-3"></th>
               </tr>
             </thead>
             <tbody>
@@ -95,6 +96,13 @@ export default function ExpenseTable() {
                   <td className="py-3 px-3 text-right text-text-primary font-medium">{formatCurrency(exp.amount)}</td>
                   <td className="py-3 px-3"><StatusBadge status={exp.status} /></td>
                   <td className="py-3 px-3 text-text-muted text-sm">{exp.expectedPaymentDate || '-'}</td>
+                  <td className="py-3 px-3">
+                    {exp.createdBy === pubyUser?.uid && ['draft', 'submitted', 'rejected'].includes(exp.status) && (
+                      <Link href={`/puby/expense/${exp.id}/edit`} className="p-1.5 text-text-muted hover:text-brand-purple transition-colors inline-block">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Link>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

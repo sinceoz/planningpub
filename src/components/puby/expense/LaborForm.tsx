@@ -42,6 +42,7 @@ export default function LaborForm() {
   const [workEnd, setWorkEnd] = useState('');
   const [workDescription, setWorkDescription] = useState('');
   const [files, setFiles] = useState<ExpenseFile[]>([]);
+  const [extraFiles, setExtraFiles] = useState<ExpenseFile[]>([]);
   const [notifyByEmail, setNotifyByEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [cacheLoaded, setCacheLoaded] = useState(false);
@@ -87,6 +88,7 @@ export default function LaborForm() {
         approvalHistory: [],
         notifyByEmail,
         files,
+        extraFiles,
         laborDetails: {
           name, residentId, address, bankName, accountNumber, accountHolder,
           taxType,
@@ -198,6 +200,10 @@ export default function LaborForm() {
         {cacheLoaded && (
           <p className="text-xs text-brand-mint">기존 인력 서류가 자동으로 불러와졌습니다.</p>
         )}
+        <div>
+          <label className="block text-sm text-text-muted mb-2">기타 서류 (견적서, 계약서 등)</label>
+          <FileUpload files={extraFiles} onChange={setExtraFiles} storagePath={`${folderId}/extra`} />
+        </div>
 
         {/* Notify */}
         <label className="flex items-center gap-2 cursor-pointer">

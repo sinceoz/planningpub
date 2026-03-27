@@ -33,6 +33,7 @@ export default function CardForm() {
   const [description, setDescription] = useState('');
   const [reason, setReason] = useState('');
   const [files, setFiles] = useState<ExpenseFile[]>([]);
+  const [extraFiles, setExtraFiles] = useState<ExpenseFile[]>([]);
   const [notifyByEmail, setNotifyByEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -50,7 +51,7 @@ export default function CardForm() {
     try {
       const newId = await createExpense({
         type: 'card', projectId, createdBy: pubyUser.uid, status,
-        amount, netAmount: amount, approvalHistory: [], notifyByEmail, files,
+        amount, netAmount: amount, approvalHistory: [], notifyByEmail, files, extraFiles,
         cardDetails: {
           storeName,
           paymentDateTime: paymentDateTime ? Timestamp.fromDate(new Date(paymentDateTime)) : Timestamp.now(),
@@ -98,6 +99,10 @@ export default function CardForm() {
         <div><label className={labelClass}>{tc('description')}</label><input type="text" value={description} onChange={(e) => setDescription(e.target.value)} required className={inputClass} /></div>
         <div><label className={labelClass}>{tc('reason')}</label><textarea value={reason} onChange={(e) => setReason(e.target.value)} required rows={3} className={inputClass} /></div>
         <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="card" onOcrResult={handleOcrResult} />
+        <div>
+          <label className="block text-sm text-text-muted mb-2">기타 서류 (견적서, 계약서 등)</label>
+          <FileUpload files={extraFiles} onChange={setExtraFiles} storagePath={`${folderId}/extra`} />
+        </div>
         <label className="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" checked={notifyByEmail} onChange={(e) => setNotifyByEmail(e.target.checked)} className="accent-brand-purple" />
           <span className="text-sm text-text-muted">{t('notifyByEmail')}</span>

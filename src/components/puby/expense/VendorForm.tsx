@@ -36,6 +36,7 @@ export default function VendorForm() {
   const [accountHolder, setAccountHolder] = useState('');
   const [description, setDescription] = useState('');
   const [files, setFiles] = useState<ExpenseFile[]>([]);
+  const [extraFiles, setExtraFiles] = useState<ExpenseFile[]>([]);
   const [notifyByEmail, setNotifyByEmail] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [cacheLoaded, setCacheLoaded] = useState(false);
@@ -73,7 +74,7 @@ export default function VendorForm() {
     try {
       const newId = await createExpense({
         type: 'vendor', projectId, createdBy: pubyUser.uid, status,
-        amount, netAmount: amount, approvalHistory: [], notifyByEmail, files,
+        amount, netAmount: amount, approvalHistory: [], notifyByEmail, files, extraFiles,
         vendorDetails: { businessNumber, companyName, representative, address, bankName, accountNumber, accountHolder, description },
       } as any);
 
@@ -132,6 +133,10 @@ export default function VendorForm() {
         {cacheLoaded && (
           <p className="text-xs text-brand-mint">기존 거래처 서류가 자동으로 불러와졌습니다.</p>
         )}
+        <div>
+          <label className="block text-sm text-text-muted mb-2">기타 서류 (견적서, 계약서 등)</label>
+          <FileUpload files={extraFiles} onChange={setExtraFiles} storagePath={`${folderId}/extra`} />
+        </div>
         <label className="flex items-center gap-2 cursor-pointer">
           <input type="checkbox" checked={notifyByEmail} onChange={(e) => setNotifyByEmail(e.target.checked)} className="accent-brand-purple" />
           <span className="text-sm text-text-muted">{t('notifyByEmail')}</span>
