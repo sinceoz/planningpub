@@ -34,8 +34,12 @@ export default function ProjectsPage() {
     if (!pubyUser || !name) return;
     setSubmitting(true);
     try {
-      const data = { name, status, approvalFlow, managerId: approvalFlow === 'two_step' ? managerId : undefined, members: [], createdBy: pubyUser.uid };
+      const data: Record<string, any> = { name, status, approvalFlow, members: [], createdBy: pubyUser.uid };
+      if (approvalFlow === 'two_step' && managerId) {
+        data.managerId = managerId;
+      }
       if (editing) {
+        if (approvalFlow !== 'two_step') data.managerId = '';
         await updateProject(editing.id, data);
       } else {
         await createProject(data as any);

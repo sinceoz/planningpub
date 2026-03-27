@@ -44,7 +44,7 @@ service cloud.firestore {
     match /puby_expenses/{expenseId} {
       allow read: if request.auth.uid == resource.data.createdBy || isAdmin() || isAssignedManager();
       allow create: if isPubyUser()
-                       && request.resource.data.status == 'draft'
+                       && request.resource.data.status in ['draft', 'submitted']
                        && request.resource.data.createdBy == request.auth.uid;
       allow update: if (request.auth.uid == resource.data.createdBy
                          && resource.data.status in ['draft', 'rejected'])
@@ -61,6 +61,7 @@ service cloud.firestore {
 
     match /puby_notifications/{notifId} {
       allow read, update: if request.auth.uid == resource.data.userId;
+      allow create: if isPubyUser();
     }
 
     match /puby_invitations/{inviteId} {
