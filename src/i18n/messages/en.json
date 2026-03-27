@@ -193,6 +193,7 @@
       "employees": "Employees",
       "projects": "Projects",
       "expenseApproval": "Expense Approval",
+      "fileManager": "File Manager",
       "settings": "Settings"
     },
     "header": {

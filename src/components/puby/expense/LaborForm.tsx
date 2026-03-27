@@ -11,6 +11,7 @@ import { formatCurrency } from '@/lib/puby/format';
 import FileUpload, { type OcrResult } from './FileUpload';
 import { notifyExpenseSubmitted } from '@/lib/puby/notifications';
 import { getLaboreeCache, saveLaboreeCache } from '@/lib/puby/documentCache';
+import { copyFilesToFolder } from '@/lib/puby/expenseFolder';
 import type { ExpenseFile, IncomeType, ExpenseStatus } from '@/types/puby';
 import { Info } from 'lucide-react';
 
@@ -102,18 +103,25 @@ export default function LaborForm() {
         saveLaboreeCache(residentId, name, files).catch(() => {});
       }
 
-      if (status === 'submitted') {
-        const project = projects.find((p) => p.id === projectId);
-        if (project) {
-          notifyExpenseSubmitted({
-            expenseId: newId,
-            project,
-            actorName: pubyUser.displayName,
-            actorUid: pubyUser.uid,
-            expenseTitle: name || '인건비',
-          }).catch(() => {});
-        }
+      const project = projects.find((p) => p.id === projectId);
+      if (status === 'submitted' && project) {
+        notifyExpenseSubmitted({
+          expenseId: newId, project, actorName: pubyUser.displayName,
+          actorUid: pubyUser.uid, expenseTitle: name || '인건비',
+        }).catch(() => {});
       }
+
+      if (project) {
+        const now = new Date();
+        copyFilesToFolder({
+          id: newId, type: 'labor', projectId, createdBy: pubyUser.uid, status, amount,
+          taxDeduction: taxCalc.taxAmount, netAmount: taxCalc.netAmount,
+          approvalHistory: [], notifyByEmail, files, extraFiles,
+          laborDetails: { name, residentId, address, bankName, accountNumber, accountHolder, taxType, workPeriod: { start: workStart, end: workEnd }, workDescription },
+          createdAt: { toDate: () => now } as any, updatedAt: { toDate: () => now } as any,
+        } as any, project.name).catch(() => {});
+      }
+
       router.push('/puby/expense');
     } finally {
       setSubmitting(false);

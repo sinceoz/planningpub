@@ -9,6 +9,7 @@ import { useProjects } from '@/hooks/puby/useProjects';
 import FileUpload, { type OcrResult } from './FileUpload';
 import { notifyExpenseSubmitted } from '@/lib/puby/notifications';
 import { getVendorCache, saveVendorCache } from '@/lib/puby/documentCache';
+import { copyFilesToFolder } from '@/lib/puby/expenseFolder';
 import type { ExpenseFile, ExpenseStatus } from '@/types/puby';
 
 export default function VendorForm() {
@@ -83,18 +84,25 @@ export default function VendorForm() {
         saveVendorCache(businessNumber, companyName, files).catch(() => {});
       }
 
-      if (status === 'submitted') {
-        const project = projects.find((p) => p.id === projectId);
-        if (project) {
-          notifyExpenseSubmitted({
-            expenseId: newId,
-            project,
-            actorName: pubyUser.displayName,
-            actorUid: pubyUser.uid,
-            expenseTitle: companyName || '업체비',
-          }).catch(() => {});
-        }
+      const project = projects.find((p) => p.id === projectId);
+      if (status === 'submitted' && project) {
+        notifyExpenseSubmitted({
+          expenseId: newId, project, actorName: pubyUser.displayName,
+          actorUid: pubyUser.uid, expenseTitle: companyName || '업체비',
+        }).catch(() => {});
       }
+
+      // 구조화된 폴더에 파일 복사
+      if (project) {
+        const now = new Date();
+        copyFilesToFolder({
+          id: newId, type: 'vendor', projectId, createdBy: pubyUser.uid, status, amount, netAmount: amount,
+          approvalHistory: [], notifyByEmail, files, extraFiles,
+          vendorDetails: { businessNumber, companyName, representative, address, bankName, accountNumber, accountHolder, description },
+          createdAt: { toDate: () => now } as any, updatedAt: { toDate: () => now } as any,
+        } as any, project.name).catch(() => {});
+      }
+
       router.push('/puby/expense');
     } finally { setSubmitting(false); }
   }

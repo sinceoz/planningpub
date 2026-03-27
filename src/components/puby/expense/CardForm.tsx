@@ -9,6 +9,7 @@ import { useProjects } from '@/hooks/puby/useProjects';
 import { Timestamp } from 'firebase/firestore';
 import FileUpload, { type OcrResult } from './FileUpload';
 import { notifyExpenseSubmitted } from '@/lib/puby/notifications';
+import { copyFilesToFolder } from '@/lib/puby/expenseFolder';
 import type { ExpenseFile, ExpenseStatus } from '@/types/puby';
 
 export default function CardForm() {
@@ -59,18 +60,24 @@ export default function CardForm() {
           description, reason,
         },
       } as any);
-      if (status === 'submitted') {
-        const project = projects.find((p) => p.id === projectId);
-        if (project) {
-          notifyExpenseSubmitted({
-            expenseId: newId,
-            project,
-            actorName: pubyUser.displayName,
-            actorUid: pubyUser.uid,
-            expenseTitle: storeName || '카드',
-          }).catch(() => {});
-        }
+      const project = projects.find((p) => p.id === projectId);
+      if (status === 'submitted' && project) {
+        notifyExpenseSubmitted({
+          expenseId: newId, project, actorName: pubyUser.displayName,
+          actorUid: pubyUser.uid, expenseTitle: storeName || '카드',
+        }).catch(() => {});
       }
+
+      if (project) {
+        const now = new Date();
+        copyFilesToFolder({
+          id: newId, type: 'card', projectId, createdBy: pubyUser.uid, status, amount, netAmount: amount,
+          approvalHistory: [], notifyByEmail, files, extraFiles,
+          cardDetails: { storeName, paymentDateTime: Timestamp.fromDate(paymentDateTime ? new Date(paymentDateTime) : now), cardLastFour, description, reason },
+          createdAt: { toDate: () => now } as any, updatedAt: { toDate: () => now } as any,
+        } as any, project.name).catch(() => {});
+      }
+
       router.push('/puby/expense');
     } finally { setSubmitting(false); }
   }
