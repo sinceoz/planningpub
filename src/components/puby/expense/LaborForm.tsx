@@ -140,6 +140,7 @@ export default function LaborForm() {
           <div>
             <label className={labelClass}>{t('amount')}</label>
             <input type="number" value={amount || ''} onChange={(e) => setAmount(Number(e.target.value))} required min={0} className={inputClass} />
+            <p className="text-xs text-text-dim mt-1">금액은 직접 입력해 주세요.</p>
           </div>
         </div>
 
@@ -196,12 +197,17 @@ export default function LaborForm() {
         <div><label className={labelClass}>{tl('workDescription')}</label><textarea value={workDescription} onChange={(e) => setWorkDescription(e.target.value)} required rows={3} className={inputClass} /></div>
 
         {/* Files */}
-        <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="labor" onOcrResult={handleOcrResult} />
-        {cacheLoaded && (
-          <p className="text-xs text-brand-mint">기존 인력 서류가 자동으로 불러와졌습니다.</p>
-        )}
         <div>
-          <label className="block text-sm text-text-muted mb-2">기타 서류 (견적서, 계약서 등)</label>
+          <label className="block text-sm text-text-muted mb-1">증빙 서류</label>
+          <p className="text-xs text-text-dim mb-2">신분증, 통장사본만 업로드해 주세요. 업로드 시 자동으로 OCR 분석됩니다.</p>
+          <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="labor" onOcrResult={handleOcrResult} />
+          {cacheLoaded && (
+            <p className="text-xs text-brand-mint mt-1">기존 인력 서류가 자동으로 불러와졌습니다.</p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm text-text-muted mb-1">기타 서류</label>
+          <p className="text-xs text-text-dim mb-2">근로계약서, 업무지시서 등 참고파일을 업로드해 주세요.</p>
           <FileUpload files={extraFiles} onChange={setExtraFiles} storagePath={`${folderId}/extra`} />
         </div>
 

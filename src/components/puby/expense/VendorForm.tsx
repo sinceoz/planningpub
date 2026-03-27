@@ -129,12 +129,17 @@ export default function VendorForm() {
           <div><label className={labelClass}>{tv('accountHolder')}</label><input type="text" value={accountHolder} onChange={(e) => setAccountHolder(e.target.value)} required className={inputClass} /></div>
         </div>
         <div><label className={labelClass}>{tv('description')}</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className={inputClass} /></div>
-        <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="vendor" onOcrResult={handleOcrResult} />
-        {cacheLoaded && (
-          <p className="text-xs text-brand-mint">기존 거래처 서류가 자동으로 불러와졌습니다.</p>
-        )}
         <div>
-          <label className="block text-sm text-text-muted mb-2">기타 서류 (견적서, 계약서 등)</label>
+          <label className="block text-sm text-text-muted mb-1">증빙 서류</label>
+          <p className="text-xs text-text-dim mb-2">사업자등록증, 통장사본, 세금계산서만 업로드해 주세요. 업로드 시 자동으로 OCR 분석됩니다.</p>
+          <FileUpload files={files} onChange={setFiles} storagePath={folderId} ocrType="vendor" onOcrResult={handleOcrResult} />
+          {cacheLoaded && (
+            <p className="text-xs text-brand-mint mt-1">기존 거래처 서류가 자동으로 불러와졌습니다.</p>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm text-text-muted mb-1">기타 서류</label>
+          <p className="text-xs text-text-dim mb-2">계약서, 견적서 등 참고파일을 업로드해 주세요.</p>
           <FileUpload files={extraFiles} onChange={setExtraFiles} storagePath={`${folderId}/extra`} />
         </div>
         <label className="flex items-center gap-2 cursor-pointer">
