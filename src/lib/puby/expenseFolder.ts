@@ -1,4 +1,4 @@
-import { ref, uploadBytes, getDownloadURL, getBytes } from 'firebase/storage';
+import { ref, uploadBytes, getBytes } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 import type { PubyExpense, ExpenseFile } from '@/types/puby';
 
@@ -60,14 +60,18 @@ export async function copyFilesToFolder(expense: PubyExpense, projectName: strin
     ...(expense.extraFiles || []),
   ];
 
-  // URL에서 파일을 가져와서 새 경로에 복사
+  // Firebase Storage URL에서 경로를 추출하여 SDK로 복사
   await Promise.all(
     allFiles.map(async (file) => {
       try {
-        const response = await fetch(file.url);
-        const blob = await response.blob();
-        const destRef = ref(storage, `${basePath}/${file.name}`);
-        await uploadBytes(destRef, blob);
+        const srcPath = extractStoragePath(file.url);
+        if (srcPath) {
+          // Firebase Storage SDK로 바이트 읽기 (CORS 문제 없음)
+          const srcRef = ref(storage, srcPath);
+          const bytes = await getBytes(srcRef);
+          const destRef = ref(storage, `${basePath}/${file.name}`);
+          await uploadBytes(destRef, new Uint8Array(bytes));
+        }
       } catch (err) {
         console.error(`Failed to copy file ${file.name}:`, err);
       }
@@ -75,4 +79,16 @@ export async function copyFilesToFolder(expense: PubyExpense, projectName: strin
   );
 
   return basePath;
+}
+
+/**
+ * Firebase Storage download URL에서 storage path를 추출
+ * URL 형식: https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{encoded_path}?...
+ */
+function extractStoragePath(url: string): string | null {
+  try {
+    const match = url.match(/\/o\/([^?]+)/);
+    if (match) return decodeURIComponent(match[1]);
+  } catch {}
+  return null;
 }

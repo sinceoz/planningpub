@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { usePubyAuth } from '@/hooks/puby/useAuth';
-import { ref, listAll, getDownloadURL, type StorageReference } from 'firebase/storage';
+import { ref, listAll, getDownloadURL, getBytes } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 import { Folder, FileText, ChevronRight, ChevronDown, Download, ArrowLeft } from 'lucide-react';
 import JSZip from 'jszip';
@@ -93,18 +93,17 @@ export default function FileManagerPage() {
     }
   }
 
-  async function collectFolderFiles(folderPath: string): Promise<{ name: string; url: string }[]> {
+  async function collectFolderFiles(folderPath: string): Promise<{ name: string; path: string }[]> {
     const folderRef = ref(storage, folderPath);
     const result = await listAll(folderRef);
-    const files: { name: string; url: string }[] = [];
+    const files: { name: string; path: string }[] = [];
 
     for (const item of result.items) {
-      const url = await getDownloadURL(item);
-      files.push({ name: item.name, url });
+      files.push({ name: item.name, path: item.fullPath });
     }
     for (const prefix of result.prefixes) {
       const subFiles = await collectFolderFiles(prefix.fullPath);
-      files.push(...subFiles.map((f) => ({ name: `${prefix.name}/${f.name}`, url: f.url })));
+      files.push(...subFiles.map((f) => ({ name: `${prefix.name}/${f.name}`, path: f.path })));
     }
     return files;
   }
@@ -128,14 +127,12 @@ export default function FileManagerPage() {
           const files = await collectFolderFiles(item.fullPath);
           const folder = zip.folder(item.name)!;
           for (const f of files) {
-            const res = await fetch(f.url);
-            const blob = await res.blob();
-            folder.file(f.name, blob);
+            const bytes = await getBytes(ref(storage, f.path));
+            folder.file(f.name, new Uint8Array(bytes));
           }
-        } else if (item.url) {
-          const res = await fetch(item.url);
-          const blob = await res.blob();
-          zip.file(item.name, blob);
+        } else {
+          const bytes = await getBytes(ref(storage, item.fullPath));
+          zip.file(item.name, new Uint8Array(bytes));
         }
       }
       const blob = await zip.generateAsync({ type: 'blob' });
