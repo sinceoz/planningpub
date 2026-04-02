@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import HeroSection from '@/components/home/HeroSection';
-import MicePlatformerSection from '@/components/home/MicePlatformerSection';
+import PortfolioShowcase from '@/components/home/PortfolioShowcase';
+import WhySection from '@/components/home/WhySection';
 import ServiceGrid from '@/components/home/ServiceGrid';
-import PortfolioPreview from '@/components/home/PortfolioPreview';
+import MicePlatformerSection from '@/components/home/MicePlatformerSection';
 import CTASection from '@/components/home/CTASection';
 
 export const metadata: Metadata = {
@@ -19,9 +20,10 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <MicePlatformerSection />
+      <PortfolioShowcase />
+      <WhySection />
       <ServiceGrid />
-      <PortfolioPreview />
+      <MicePlatformerSection />
       <CTASection />
     </>
   );

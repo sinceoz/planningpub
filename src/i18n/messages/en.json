@@ -63,7 +63,8 @@
   "cta": {
     "title": "Ready for your\nnext project?",
     "subtitle": "Our team of MICE experts will lead your project to success.",
-    "button": "Start a Project"
+    "button": "Start a Project",
+    "kakaoButton": "KakaoTalk Inquiry"
   },
   "about": {
     "label": "ABOUT US",
@@ -402,5 +403,21 @@
       "saving": "Saving...",
       "saved": "Saved."
     }
+  },
+  "portfolioShowcase": {
+    "label": "Portfolio Showcase",
+    "title": "Stages We Built",
+    "viewAll": "View All Portfolio",
+    "viewAllSub": "45+ Projects"
+  },
+  "why": {
+    "label": "Why PlanningPub",
+    "headline": "Even as agencies change,\nevents accumulate",
+    "item1Title": "Platform Design",
+    "item1Desc": "We design events not as one-time consumables, but as continuously growing assets. No need to start from scratch every time.",
+    "item2Title": "Data Accumulation",
+    "item2Desc": "Planner expertise and event data are systematically stored and leveraged at a higher level for the next event.",
+    "item3Title": "Tech-Planning Fusion",
+    "item3Desc": "Dev and planning are one team. The only MICE partner that speaks both the language of planning and technology."
   }
 }

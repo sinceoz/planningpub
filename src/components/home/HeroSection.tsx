@@ -1,10 +1,55 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Link } from '@/i18n/routing';
 import { ArrowRight, ChevronDown } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
+
+// Background grid: event/conference themed photos from Unsplash
+const BG_IMAGES = [
+  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=60',
+  'https://images.unsplash.com/photo-1511578314322-379afb476865?w=600&q=60',
+  'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&q=60',
+  'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&q=60',
+  'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=60',
+  'https://images.unsplash.com/photo-1560439514-4e9645039924?w=600&q=60',
+  'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=60',
+  'https://images.unsplash.com/photo-1515169067868-5387ec356754?w=600&q=60',
+  'https://images.unsplash.com/photo-1601933470096-0e34634ffcde?w=600&q=60',
+  'https://images.unsplash.com/photo-1464047736614-af63643285bf?w=600&q=60',
+  'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=600&q=60',
+  'https://images.unsplash.com/photo-1582192730841-2a682d7375f9?w=600&q=60',
+];
+
+function CountUp({ target, suffix = '' }: { target: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (!inView) return;
+    const duration = 1800;
+    const start = performance.now();
+    const raf = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // easeOutExpo
+      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setCount(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(raf);
+      else setCount(target);
+    };
+    requestAnimationFrame(raf);
+  }, [inView, target]);
+
+  return (
+    <span ref={ref}>
+      {count}
+      {suffix}
+    </span>
+  );
+}
 
 export default function HeroSection() {
   const t = useTranslations('hero');
@@ -13,90 +58,97 @@ export default function HeroSection() {
     target: sectionRef,
     offset: ['start start', 'end start'],
   });
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
+  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
 
   return (
     <section
       ref={sectionRef}
       className="relative min-h-screen flex items-end overflow-hidden"
     >
-      {/* ── Background Image Layer ── */}
-      <motion.div className="absolute inset-0 -top-20" style={{ y: bgY }}>
-        <motion.img
-          initial={{ scale: 1.2, opacity: 0 }}
-          animate={{ scale: 1.05, opacity: 1 }}
-          transition={{ duration: 2.4, ease: 'easeOut' }}
-          src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1920&q=80"
-          alt=""
-          aria-hidden="true"
-          className="w-full h-full object-cover opacity-[0.12]"
-          draggable={false}
-        />
+      {/* ── Background: Event Thumbnail Grid ── */}
+      <motion.div
+        className="absolute inset-0 -top-20"
+        style={{ y: bgY }}
+        aria-hidden="true"
+      >
+        <div className="grid grid-cols-4 gap-1 w-full h-full">
+          {BG_IMAGES.map((src, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.8, delay: i * 0.07, ease: 'easeOut' }}
+              className="overflow-hidden"
+            >
+              <img
+                src={src}
+                alt=""
+                draggable={false}
+                className="w-full h-full object-cover opacity-[0.18] scale-105"
+              />
+            </motion.div>
+          ))}
+        </div>
       </motion.div>
 
       {/* ── Gradient Overlays ── */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-dark)] via-[var(--color-bg-dark)]/92 to-[var(--color-bg-dark)]/50" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-bg-dark)]/70 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-dark)] via-[var(--color-bg-dark)]/95 to-[var(--color-bg-dark)]/60" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-bg-dark)]/80 via-transparent to-transparent" />
 
       {/* ── Ambient Glow ── */}
-      <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] rounded-full bg-brand-purple/8 blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] rounded-full bg-brand-mint/5 blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] rounded-full bg-brand-purple/10 blur-[160px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/3 w-[400px] h-[400px] rounded-full bg-brand-mint/6 blur-[120px] pointer-events-none" />
 
       {/* ── Logo Icon — brand watermark ── */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 0.07, scale: 1 }}
+        animate={{ opacity: 0.06, scale: 1 }}
         transition={{ duration: 2, delay: 1.2, ease: 'easeOut' }}
         className="absolute right-[-5%] md:right-[2%] lg:right-[5%] top-[20%] md:top-[18%] pointer-events-none select-none"
+        aria-hidden="true"
       >
         <img
           src="/logos/logoonly.svg"
           alt=""
           aria-hidden="true"
-          className="w-[280px] md:w-[420px] lg:w-[520px]"
+          className="w-[320px] md:w-[480px] lg:w-[600px]"
           draggable={false}
         />
       </motion.div>
 
-      {/* ── Grid Pattern (subtle) ── */}
-      <div
-        className="absolute inset-0 opacity-[0.015] pointer-events-none"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)',
-          backgroundSize: '80px 80px',
-        }}
-      />
-
       {/* ── Content ── */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pb-16 md:pb-24 pt-44 md:pt-52">
-        <div className="max-w-4xl">
-          {/* — Headline 1: "행사는 소비되고," — ephemeral, blurs in */}
+      <motion.div
+        style={{ y: contentY }}
+        className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-20 pb-16 md:pb-24 pt-44 md:pt-52"
+      >
+        <div className="max-w-5xl">
+          {/* — Headline 1: fades in blurred */}
           <motion.p
             initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
             animate={{ opacity: 0.45, y: 0, filter: 'blur(0px)' }}
             transition={{ duration: 1.2, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
-            className="text-[1.7rem] md:text-[2.8rem] lg:text-[3.4rem] font-medium text-text-primary leading-snug tracking-[-0.02em]"
+            className="text-[1.7rem] md:text-[2.8rem] lg:text-[3.2rem] font-medium text-text-primary leading-snug tracking-[-0.02em]"
           >
             {t('headline1')}
           </motion.p>
 
-          {/* — Headline 2-3: "플랫폼은 / 축적된다" — permanent, bold gradient */}
+          {/* — Headline 2-3: massive gradient text */}
           <motion.h1
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.0, delay: 0.55, ease: [0.23, 1, 0.32, 1] }}
             className="mt-1 md:mt-2"
           >
-            <span className="hero-gradient-text block text-[2.8rem] md:text-[4.5rem] lg:text-[5.8rem] font-bold leading-[1.05] tracking-[-0.03em]">
+            <span className="hero-gradient-text block text-[3.6rem] md:text-[6rem] lg:text-[7.5rem] font-bold leading-[1.02] tracking-[-0.04em]">
               {t('headline2')}
             </span>
-            <span className="hero-gradient-text block text-[2.8rem] md:text-[4.5rem] lg:text-[5.8rem] font-bold leading-[1.05] tracking-[-0.03em]">
+            <span className="hero-gradient-text block text-[3.6rem] md:text-[6rem] lg:text-[7.5rem] font-bold leading-[1.02] tracking-[-0.04em]">
               {t('headline3')}
             </span>
           </motion.h1>
 
-          {/* — Gradient Divider — draws left to right */}
+          {/* — Gradient Divider */}
           <motion.div
             initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
@@ -108,7 +160,7 @@ export default function HeroSection() {
             }}
           />
 
-          {/* — Body: problem statement */}
+          {/* — Body */}
           <motion.p
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -118,7 +170,6 @@ export default function HeroSection() {
             {t('body1')}
           </motion.p>
 
-          {/* — Body: manifesto answer */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -163,54 +214,57 @@ export default function HeroSection() {
           </motion.div>
         </div>
 
-        {/* ── Stats Bar — "축적" 증거 ── */}
+        {/* ── Stats — large countup numbers ── */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 2.2 }}
-          className="mt-14 md:mt-20 pt-6 border-t border-white/[0.06]"
+          transition={{ duration: 0.8, delay: 2.1 }}
+          className="mt-16 md:mt-24 pt-8 border-t border-white/[0.06]"
         >
-          <div className="flex gap-8 md:gap-14">
+          <div className="flex gap-10 md:gap-20 lg:gap-28">
             <div>
-              <p className="text-xl md:text-2xl font-bold hero-gradient-text">
-                {t('stat1Value')}
+              <p className="text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-bold hero-gradient-text leading-none tabular-nums">
+                <CountUp target={45} suffix="+" />
               </p>
-              <p className="text-[0.65rem] md:text-xs text-text-dim mt-1 tracking-[0.15em] uppercase">
+              <p className="text-[0.65rem] md:text-xs text-text-dim mt-2 tracking-[0.15em] uppercase">
                 {t('stat1Label')}
               </p>
             </div>
             <div>
-              <p className="text-xl md:text-2xl font-bold hero-gradient-text">
-                {t('stat2Value')}
+              <p className="text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-bold hero-gradient-text leading-none">
+                <CountUp target={40} suffix="개국" />
               </p>
-              <p className="text-[0.65rem] md:text-xs text-text-dim mt-1 tracking-[0.15em] uppercase">
+              <p className="text-[0.65rem] md:text-xs text-text-dim mt-2 tracking-[0.15em] uppercase">
                 {t('stat2Label')}
               </p>
             </div>
             <div>
-              <p className="text-xl md:text-2xl font-bold hero-gradient-text">
-                {t('stat3Value')}
+              <p className="text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-bold hero-gradient-text leading-none tabular-nums">
+                <CountUp target={100} suffix="만+" />
               </p>
-              <p className="text-[0.65rem] md:text-xs text-text-dim mt-1 tracking-[0.15em] uppercase">
+              <p className="text-[0.65rem] md:text-xs text-text-dim mt-2 tracking-[0.15em] uppercase">
                 {t('stat3Label')}
               </p>
             </div>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* ── Scroll Hint ── */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 3.0 }}
-        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10"
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1"
       >
+        <span className="text-[0.6rem] tracking-[0.2em] text-text-dim/50 uppercase">
+          Scroll
+        </span>
         <motion.div
           animate={{ y: [0, 6, 0] }}
           transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <ChevronDown size={18} className="text-text-dim/60" />
+          <ChevronDown size={16} className="text-text-dim/50" />
         </motion.div>
       </motion.div>
     </section>
