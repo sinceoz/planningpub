@@ -84,7 +84,9 @@ export default function FileUpload({ files, onChange, storagePath, ocrType, onOc
       const ocrUrls: string[] = [];
       for (const file of Array.from(fileList)) {
         if (file.size > 10 * 1024 * 1024) continue;
-        const storageRef = ref(storage, `${storagePath}/${file.name}`);
+	const ext = file.name.split('.').pop() || '';
+        const safeFilename = `${crypto.randomUUID()}${ext ? '.' + ext : ''}`;
+        const storageRef = ref(storage, `${storagePath}/${safeFilename}`);
         await uploadBytes(storageRef, file);
         const url = await getDownloadURL(storageRef);
         newFiles.push({ name: file.name, url, type: file.type });

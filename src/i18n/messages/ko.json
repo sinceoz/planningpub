@@ -371,6 +371,36 @@
         "in_progress": "진행중",
         "completed": "완료"
       }
+    },
+    "employees": {
+      "title": "직원 관리",
+      "invite": "초대하기",
+      "inviteEmployee": "직원 초대",
+      "email": "이메일",
+      "role": "권한",
+      "department": "부서",
+      "position": "직책",
+      "sendInvite": "초대 메일 발송",
+      "sending": "발송 중...",
+      "inviteSuccess": "초대 메일이 발송되었습니다.",
+      "inviteError": "초대 발송에 실패했습니다.",
+      "noEmployees": "등록된 직원이 없습니다.",
+      "editEmployee": "직원 정보 수정",
+      "saveChanges": "저장",
+      "roles": {
+        "admin": "관리자",
+        "manager": "팀장",
+        "user": "직원"
+      }
+    },
+    "settings": {
+      "title": "설정",
+      "scheduleTime": "스케줄 시간 범위",
+      "startHour": "시작 시간",
+      "endHour": "종료 시간",
+      "saveSettings": "설정 저장",
+      "saving": "저장 중...",
+      "saved": "저장되었습니다."
     }
   }
 }

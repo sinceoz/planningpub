@@ -371,6 +371,36 @@
         "in_progress": "In Progress",
         "completed": "Completed"
       }
+    },
+    "employees": {
+      "title": "Employee Management",
+      "invite": "Invite",
+      "inviteEmployee": "Invite Employee",
+      "email": "Email",
+      "role": "Role",
+      "department": "Department",
+      "position": "Position",
+      "sendInvite": "Send Invite",
+      "sending": "Sending...",
+      "inviteSuccess": "Invitation sent successfully.",
+      "inviteError": "Failed to send invitation.",
+      "noEmployees": "No employees registered.",
+      "editEmployee": "Edit Employee",
+      "saveChanges": "Save",
+      "roles": {
+        "admin": "Admin",
+        "manager": "Manager",
+        "user": "Employee"
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "scheduleTime": "Schedule Time Range",
+      "startHour": "Start Hour",
+      "endHour": "End Hour",
+      "saveSettings": "Save Settings",
+      "saving": "Saving...",
+      "saved": "Saved."
     }
   }
 }
