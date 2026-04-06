@@ -134,7 +134,7 @@ export default function PortfolioShowcase() {
   });
 
   // 세로 스크롤 → 가로 이동 (vw 단위, 카드 너비 85vw 기준)
-  const cardWidth = 85; // vw (md 기준)
+  const cardWidth = 80; // vw (md 기준)
   const maxOffset = -(totalSlides - 1) * cardWidth;
   const xRaw = useTransform(scrollYProgress, [0, 1], [0, maxOffset]);
   const x = useTransform(xRaw, (v) => `${v}vw`);
@@ -183,7 +183,7 @@ export default function PortfolioShowcase() {
               return (
                 <div
                   key={item.id}
-                  className="shrink-0 w-[90vw] md:w-[85vw] px-4 md:px-6 flex items-center justify-center"
+                  className="shrink-0 w-[88vw] md:w-[80vw] px-3 md:px-4 flex items-center justify-center"
                 >
                   <div className="group w-full max-w-6xl h-full flex flex-col md:flex-row gap-5 md:gap-10 items-center">
                     {/* Image — 가로 16:9 */}
@@ -197,7 +197,7 @@ export default function PortfolioShowcase() {
 
                     {/* Info */}
                     <div className="md:flex-[1.2] shrink-0 flex flex-col justify-center px-2">
-                      <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-text-primary leading-snug">
+                      <h3 className="text-base md:text-lg lg:text-xl font-bold text-text-primary leading-snug whitespace-nowrap overflow-hidden text-ellipsis">
                         {title}
                       </h3>
                       {item.organizer && (
@@ -217,7 +217,7 @@ export default function PortfolioShowcase() {
             })}
 
             {/* Final "View All" card */}
-            <div className="shrink-0 w-[90vw] md:w-[85vw] px-4 md:px-6 flex items-center justify-center">
+            <div className="shrink-0 w-[88vw] md:w-[80vw] px-3 md:px-4 flex items-center justify-center">
               <Link href="/portfolio" className="group block">
                 <div className="w-[280px] md:w-[360px] aspect-[16/10] rounded-2xl border border-border-default hover:border-brand-mint/50 transition-colors flex flex-col items-center justify-center gap-6 bg-bg-surface/50 hover:bg-bg-surface">
                   <div className="w-16 h-16 rounded-full border border-brand-mint/40 flex items-center justify-center group-hover:bg-brand-mint/10 transition-colors">
