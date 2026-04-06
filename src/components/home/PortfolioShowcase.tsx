@@ -1,8 +1,8 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Link } from '@/i18n/routing';
 import { ArrowRight } from 'lucide-react';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
@@ -30,6 +30,35 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 const CARD_COUNT = 10;
+const IMAGE_ROTATE_INTERVAL = 4000; // 4초마다 이미지 전환
+
+/** Auto-rotating image slideshow for portfolio cards */
+function RotatingImage({ images, alt }: { images: string[]; alt: string }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (images.length < 2) return;
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, IMAGE_ROTATE_INTERVAL);
+    return () => clearInterval(timer);
+  }, [images.length]);
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.img
+        key={index}
+        src={images[index]}
+        alt={alt}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.8 }}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    </AnimatePresence>
+  );
+}
 
 export default function PortfolioShowcase() {
   const t = useTranslations('portfolioShowcase');
@@ -37,12 +66,10 @@ export default function PortfolioShowcase() {
   const sectionRef = useRef<HTMLElement>(null);
 
   const [showcaseItems, setShowcaseItems] = useState<PortfolioItem[]>(() => {
-    // Initial: static data fallback (SSR-safe)
     const featured = PORTFOLIO_DATA.filter((item) => item.featured);
     return shuffle(featured).slice(0, CARD_COUNT);
   });
 
-  // Try loading from Firestore for up-to-date featured items
   useEffect(() => {
     const load = async () => {
       try {
@@ -68,7 +95,21 @@ export default function PortfolioShowcase() {
     load();
   }, []);
 
+  const getImages = useCallback(
+    (item: PortfolioItem, i: number) => {
+      const allImages = [
+        ...(item.thumbnail ? [item.thumbnail] : []),
+        ...item.images,
+      ].filter(Boolean);
+      if (allImages.length > 0) return allImages;
+      return [PLACEHOLDER_IMAGES[i % PLACEHOLDER_IMAGES.length]];
+    },
+    [],
+  );
+
   const totalCards = showcaseItems.length + 1;
+  // 스크롤 속도 완화: 카드당 150vh (기존 100vh)
+  const scrollHeight = totalCards * 150;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -85,9 +126,8 @@ export default function PortfolioShowcase() {
     <section
       ref={sectionRef}
       className="relative"
-      style={{ height: `${totalCards * 100}vh` }}
+      style={{ height: `${scrollHeight}vh` }}
     >
-      {/* Sticky container that stays pinned during scroll */}
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
         {/* Header */}
         <div className="shrink-0 max-w-7xl w-full mx-auto px-6 md:px-12 lg:px-20 pt-20 pb-8">
@@ -116,39 +156,40 @@ export default function PortfolioShowcase() {
         <div className="flex-1 min-h-0 flex items-center">
           <motion.div
             style={{ x }}
-            className="flex h-[65vh] md:h-[70vh]"
+            className="flex h-[60vh] md:h-[68vh]"
           >
             {showcaseItems.map((item, i) => {
               const title = locale === 'ko' ? item.title : item.titleEn;
-              const imgSrc =
-                item.thumbnail ||
-                item.images[0] ||
-                PLACEHOLDER_IMAGES[i % PLACEHOLDER_IMAGES.length];
+              const images = getImages(item, i);
 
               return (
                 <div
                   key={item.id}
                   className="shrink-0 w-screen px-4 md:px-8 lg:px-12 flex items-center justify-center"
                 >
-                  <div className="group w-full max-w-5xl h-full flex flex-col md:flex-row gap-6 md:gap-10 items-center">
-                    {/* Image */}
-                    <div className="flex-1 min-w-0 h-[55%] md:h-full w-full overflow-hidden rounded-xl relative bg-bg-surface">
-                      <img
-                        src={imgSrc}
-                        alt={title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  <div className="group w-full max-w-6xl h-full flex flex-col md:flex-row gap-5 md:gap-10 items-center">
+                    {/* Image — 가로 16:9 */}
+                    <div className="md:flex-[3] min-w-0 w-full aspect-[16/9] md:aspect-auto md:h-full overflow-hidden rounded-xl relative bg-bg-surface">
+                      <RotatingImage images={images} alt={title} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                       <span className="absolute top-4 left-4 text-xs font-bold tracking-[0.15em] uppercase text-brand-mint bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full">
                         {item.year}
                       </span>
+                      {/* Image dots indicator */}
+                      {images.length > 1 && (
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                          {images.slice(0, 6).map((_, di) => (
+                            <span
+                              key={di}
+                              className="w-1.5 h-1.5 rounded-full bg-white/40"
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     {/* Info */}
-                    <div className="md:w-[40%] shrink-0 flex flex-col justify-center px-2">
-                      <p className="text-xs text-brand-mint font-semibold tracking-[0.15em] uppercase mb-3">
-                        {String(i + 1).padStart(2, '0')} / {String(showcaseItems.length).padStart(2, '0')}
-                      </p>
+                    <div className="md:flex-[1.2] shrink-0 flex flex-col justify-center px-2">
                       <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-text-primary leading-snug">
                         {title}
                       </h3>
@@ -171,7 +212,7 @@ export default function PortfolioShowcase() {
             {/* Final "View All" card */}
             <div className="shrink-0 w-screen px-4 md:px-8 lg:px-12 flex items-center justify-center">
               <Link href="/portfolio" className="group block">
-                <div className="w-[280px] md:w-[360px] aspect-square rounded-2xl border border-border-default hover:border-brand-mint/50 transition-colors flex flex-col items-center justify-center gap-6 bg-bg-surface/50 hover:bg-bg-surface">
+                <div className="w-[280px] md:w-[360px] aspect-[16/10] rounded-2xl border border-border-default hover:border-brand-mint/50 transition-colors flex flex-col items-center justify-center gap-6 bg-bg-surface/50 hover:bg-bg-surface">
                   <div className="w-16 h-16 rounded-full border border-brand-mint/40 flex items-center justify-center group-hover:bg-brand-mint/10 transition-colors">
                     <ArrowRight size={24} className="text-brand-mint" />
                   </div>
