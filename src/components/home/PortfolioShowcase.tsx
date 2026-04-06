@@ -197,19 +197,28 @@ export default function PortfolioShowcase() {
 
                     {/* Info */}
                     <div className="md:flex-[1.2] shrink-0 flex flex-col justify-center px-2">
-                      <h3 className="text-base md:text-lg lg:text-xl font-bold text-text-primary leading-snug whitespace-nowrap overflow-hidden text-ellipsis">
+                      <h3 className="text-base md:text-lg lg:text-xl font-bold text-text-primary leading-snug">
                         {title}
                       </h3>
-                      {item.organizer && (
-                        <p className="mt-3 text-sm text-text-dim line-clamp-2">
-                          {locale === 'ko' ? item.organizer : item.organizerEn}
-                        </p>
-                      )}
-                      {item.venue && (
-                        <p className="mt-1 text-sm text-text-dim">
-                          {locale === 'ko' ? item.venue : item.venueEn}
-                        </p>
-                      )}
+                      <div className="mt-3 flex flex-col gap-1 text-sm text-text-dim">
+                        {(() => {
+                          const org = locale === 'ko' ? item.organizer : item.organizerEn;
+                          if (!org) return null;
+                          const parts = org.split(' / ');
+                          if (parts.length >= 2) {
+                            return (
+                              <>
+                                <p>주최 : {parts[0]}</p>
+                                <p>주관 : {parts.slice(1).join(', ')}</p>
+                              </>
+                            );
+                          }
+                          return <p>주최 : {org}</p>;
+                        })()}
+                        {item.venue && (
+                          <p>장소 : {locale === 'ko' ? item.venue : item.venueEn}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
