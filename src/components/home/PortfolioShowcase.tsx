@@ -78,6 +78,43 @@ function RotatingImage({ images, alt }: { images: string[]; alt: string }) {
   );
 }
 
+/** 컨테이너 너비에 맞춰 글씨 크기를 자동 축소하는 타이틀 */
+function AutoFitTitle({ title }: { title: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLHeadingElement>(null);
+  const [fontSize, setFontSize] = useState(20); // px, 기본 lg 크기
+
+  useEffect(() => {
+    const container = containerRef.current;
+    const text = textRef.current;
+    if (!container || !text) return;
+
+    // 최대 크기에서 시작해서 컨테이너에 맞을 때까지 줄임
+    const maxSize = 20;
+    const minSize = 11;
+    let size = maxSize;
+
+    text.style.fontSize = `${size}px`;
+    while (text.scrollWidth > container.clientWidth && size > minSize) {
+      size -= 0.5;
+      text.style.fontSize = `${size}px`;
+    }
+    setFontSize(size);
+  }, [title]);
+
+  return (
+    <div ref={containerRef} className="overflow-hidden">
+      <h3
+        ref={textRef}
+        className="font-bold text-text-primary whitespace-nowrap"
+        style={{ fontSize: `${fontSize}px` }}
+      >
+        {title}
+      </h3>
+    </div>
+  );
+}
+
 export default function PortfolioShowcase() {
   const t = useTranslations('portfolioShowcase');
   const locale = useLocale();
@@ -197,9 +234,7 @@ export default function PortfolioShowcase() {
 
                     {/* Info */}
                     <div className="md:flex-[1.2] shrink-0 flex flex-col justify-center px-2">
-                      <h3 className="text-base md:text-lg lg:text-xl font-bold text-text-primary leading-snug">
-                        {title}
-                      </h3>
+                      <AutoFitTitle title={title} />
                       <div className="mt-3 flex flex-col gap-1 text-sm text-text-dim">
                         {(() => {
                           const org = locale === 'ko' ? item.organizer : item.organizerEn;
