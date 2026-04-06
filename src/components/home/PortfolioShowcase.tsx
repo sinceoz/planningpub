@@ -106,7 +106,7 @@ function AutoFitTitle({ title }: { title: string }) {
     <div ref={containerRef} className="overflow-hidden">
       <h3
         ref={textRef}
-        className="font-bold text-text-primary whitespace-nowrap"
+        className="font-bold text-white whitespace-nowrap"
         style={{ fontSize: `${fontSize}px` }}
       >
         {title}
@@ -222,20 +222,17 @@ export default function PortfolioShowcase() {
                   key={item.id}
                   className="shrink-0 w-[88vw] md:w-[80vw] px-3 md:px-4 flex items-center justify-center"
                 >
-                  <div className="group w-full max-w-6xl h-full flex flex-col md:flex-row gap-5 md:gap-10 items-center">
-                    {/* Image — 가로 16:9 */}
-                    <div className="md:flex-[3] min-w-0 w-full aspect-[16/9] md:aspect-auto md:h-full overflow-hidden rounded-xl relative bg-bg-surface">
-                      <RotatingImage images={images} alt={title} />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                      <span className="absolute top-4 left-4 text-xs font-bold tracking-[0.15em] uppercase text-brand-mint bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full">
-                        {item.year}
-                      </span>
-                    </div>
-
-                    {/* Info */}
-                    <div className="md:flex-[1.2] shrink-0 flex flex-col justify-center px-2">
+                  <div className="group w-full max-w-5xl h-full overflow-hidden rounded-xl relative bg-bg-surface">
+                    <RotatingImage images={images} alt={title} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                    {/* Year badge */}
+                    <span className="absolute top-4 left-4 text-xs font-bold tracking-[0.15em] uppercase text-brand-mint bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full">
+                      {item.year}
+                    </span>
+                    {/* Info overlay */}
+                    <div className="absolute bottom-4 right-4 max-w-[70%] md:max-w-[50%] bg-black/50 backdrop-blur-md rounded-lg px-5 py-4">
                       <AutoFitTitle title={title} />
-                      <div className="mt-3 flex flex-col gap-1 text-sm text-text-dim">
+                      <div className="mt-2 flex flex-col gap-0.5 text-xs text-white/70">
                         {(() => {
                           const org = locale === 'ko' ? item.organizer : item.organizerEn;
                           if (!org) return null;
