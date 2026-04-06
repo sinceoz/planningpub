@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from '@/i18n/routing';
 import { ArrowRight } from 'lucide-react';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
@@ -30,33 +30,51 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 const CARD_COUNT = 10;
-const IMAGE_ROTATE_INTERVAL = 4000; // 4초마다 이미지 전환
+const IMAGE_ROTATE_INTERVAL = 4000;
 
-/** Auto-rotating image slideshow for portfolio cards */
+/** Cross-dissolve image slideshow — two images overlap for smooth blend */
 function RotatingImage({ images, alt }: { images: string[]; alt: string }) {
-  const [index, setIndex] = useState(0);
+  const [current, setCurrent] = useState(0);
+  const [next, setNext] = useState(1);
+  const [showNext, setShowNext] = useState(false);
 
   useEffect(() => {
     if (images.length < 2) return;
+
     const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % images.length);
+      setShowNext(true);
+      // After dissolve completes, swap current to next and prepare the one after
+      setTimeout(() => {
+        setCurrent((prev) => (prev + 1) % images.length);
+        setNext((prev) => (prev + 1) % images.length);
+        setShowNext(false);
+      }, 1000); // dissolve duration
     }, IMAGE_ROTATE_INTERVAL);
+
     return () => clearInterval(timer);
   }, [images.length]);
 
+  if (images.length === 0) return null;
+  if (images.length === 1) {
+    return (
+      <img src={images[0]} alt={alt} className="absolute inset-0 w-full h-full object-cover" />
+    );
+  }
+
   return (
-    <AnimatePresence mode="wait">
-      <motion.img
-        key={index}
-        src={images[index]}
+    <>
+      <img
+        src={images[current % images.length]}
         alt={alt}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.8 }}
         className="absolute inset-0 w-full h-full object-cover"
       />
-    </AnimatePresence>
+      <img
+        src={images[next % images.length]}
+        alt=""
+        className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+        style={{ opacity: showNext ? 1 : 0 }}
+      />
+    </>
   );
 }
 
@@ -107,26 +125,29 @@ export default function PortfolioShowcase() {
     [],
   );
 
+  // 카드 수 (view-all 포함)
   const totalCards = showcaseItems.length + 1;
-  // 스크롤 속도 완화: 카드당 150vh (기존 100vh)
-  const scrollHeight = totalCards * 150;
 
+  // 섹션 높이 = 카드 수 * 100vh (정확히 맞춤, 남는 스크롤 없음)
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end end'],
   });
 
+  // 스크롤 속도 완화: ease-out 커브로 처음엔 천천히, 후반에 가속
+  // 0~5%: 아직 첫 카드 (진입 여유)
+  // 5%~100%: 가로 스크롤 진행
   const x = useTransform(
     scrollYProgress,
-    [0, 1],
-    ['0%', `${-(totalCards - 1) * 100}%`],
+    [0, 0.05, 1],
+    ['0%', '0%', `${-(totalCards - 1) * 100}%`],
   );
 
   return (
     <section
       ref={sectionRef}
       className="relative"
-      style={{ height: `${scrollHeight}vh` }}
+      style={{ height: `${totalCards * 100}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
         {/* Header */}
@@ -175,17 +196,6 @@ export default function PortfolioShowcase() {
                       <span className="absolute top-4 left-4 text-xs font-bold tracking-[0.15em] uppercase text-brand-mint bg-black/40 backdrop-blur-sm px-3 py-1 rounded-full">
                         {item.year}
                       </span>
-                      {/* Image dots indicator */}
-                      {images.length > 1 && (
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                          {images.slice(0, 6).map((_, di) => (
-                            <span
-                              key={di}
-                              className="w-1.5 h-1.5 rounded-full bg-white/40"
-                            />
-                          ))}
-                        </div>
-                      )}
                     </div>
 
                     {/* Info */}
