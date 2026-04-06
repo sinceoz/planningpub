@@ -222,7 +222,7 @@ export default function PortfolioShowcase() {
                   key={item.id}
                   className="shrink-0 w-[85vw] md:w-[75vw] px-1 flex items-center justify-center"
                 >
-                  <div className="group w-full max-w-5xl h-full overflow-hidden rounded-xl relative bg-bg-surface">
+                  <div className="group w-full h-full overflow-hidden rounded-xl relative bg-bg-surface">
                     <RotatingImage images={images} alt={title} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
                     {/* Year badge */}
