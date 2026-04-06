@@ -259,16 +259,16 @@ export default function PortfolioShowcase() {
 
             {/* Final "View All" card */}
             <div className="shrink-0 w-[85vw] md:w-[75vw] px-1 flex items-center justify-center">
-              <Link href="/portfolio" className="group block">
-                <div className="w-[280px] md:w-[360px] aspect-[16/10] rounded-2xl border border-border-default hover:border-brand-mint/50 transition-colors flex flex-col items-center justify-center gap-6 bg-bg-surface/50 hover:bg-bg-surface">
-                  <div className="w-16 h-16 rounded-full border border-brand-mint/40 flex items-center justify-center group-hover:bg-brand-mint/10 transition-colors">
-                    <ArrowRight size={24} className="text-brand-mint" />
+              <Link href="/portfolio" className="group block w-full h-full">
+                <div className="w-full h-full rounded-xl border border-border-default hover:border-brand-mint/50 transition-colors flex flex-col items-center justify-center gap-8 bg-bg-surface/50 hover:bg-bg-surface">
+                  <div className="w-24 h-24 rounded-full border-2 border-brand-mint/40 flex items-center justify-center group-hover:bg-brand-mint/10 transition-colors">
+                    <ArrowRight size={40} className="text-brand-mint" />
                   </div>
                   <div className="text-center px-6">
-                    <span className="text-lg font-semibold text-text-muted group-hover:text-text-primary transition-colors">
+                    <span className="text-2xl md:text-3xl font-bold text-text-muted group-hover:text-text-primary transition-colors">
                       {t('viewAll')}
                     </span>
-                    <p className="mt-2 text-sm text-text-dim">
+                    <p className="mt-3 text-base text-text-dim">
                       {t('viewAllSub')}
                     </p>
                   </div>
