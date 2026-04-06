@@ -133,8 +133,9 @@ export default function PortfolioShowcase() {
     offset: ['start start', 'end end'],
   });
 
-  // 세로 스크롤 → 가로 이동 (vw 단위, 화면 너비 기준)
-  const maxOffset = -(totalSlides - 1) * 100; // -1000 (vw)
+  // 세로 스크롤 → 가로 이동 (vw 단위, 카드 너비 85vw 기준)
+  const cardWidth = 85; // vw (md 기준)
+  const maxOffset = -(totalSlides - 1) * cardWidth;
   const xRaw = useTransform(scrollYProgress, [0, 1], [0, maxOffset]);
 
   // spring 감속: 한 틱당 이동량을 줄이고 부드럽게
@@ -189,7 +190,7 @@ export default function PortfolioShowcase() {
               return (
                 <div
                   key={item.id}
-                  className="shrink-0 w-screen px-4 md:px-8 lg:px-12 flex items-center justify-center"
+                  className="shrink-0 w-[90vw] md:w-[85vw] px-4 md:px-6 flex items-center justify-center"
                 >
                   <div className="group w-full max-w-6xl h-full flex flex-col md:flex-row gap-5 md:gap-10 items-center">
                     {/* Image — 가로 16:9 */}
@@ -223,7 +224,7 @@ export default function PortfolioShowcase() {
             })}
 
             {/* Final "View All" card */}
-            <div className="shrink-0 w-screen px-4 md:px-8 lg:px-12 flex items-center justify-center">
+            <div className="shrink-0 w-[90vw] md:w-[85vw] px-4 md:px-6 flex items-center justify-center">
               <Link href="/portfolio" className="group block">
                 <div className="w-[280px] md:w-[360px] aspect-[16/10] rounded-2xl border border-border-default hover:border-brand-mint/50 transition-colors flex flex-col items-center justify-center gap-6 bg-bg-surface/50 hover:bg-bg-surface">
                   <div className="w-16 h-16 rounded-full border border-brand-mint/40 flex items-center justify-center group-hover:bg-brand-mint/10 transition-colors">
