@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { Link } from '@/i18n/routing';
 import { ArrowRight } from 'lucide-react';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
@@ -125,29 +125,35 @@ export default function PortfolioShowcase() {
     [],
   );
 
-  // 카드 수 (view-all 포함)
-  const totalCards = showcaseItems.length + 1;
+  // 가로 스크롤할 카드 전환 횟수 (view-all 포함)
+  const totalSlides = showcaseItems.length + 1;
 
-  // 섹션 높이 = 카드 수 * 100vh (정확히 맞춤, 남는 스크롤 없음)
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end end'],
   });
 
-  // 스크롤 속도 완화: ease-out 커브로 처음엔 천천히, 후반에 가속
-  // 0~5%: 아직 첫 카드 (진입 여유)
-  // 5%~100%: 가로 스크롤 진행
-  const x = useTransform(
+  // 세로 스크롤 → 가로 이동 변환 (숫자값)
+  const xPercent = useTransform(
     scrollYProgress,
-    [0, 0.05, 1],
-    ['0%', '0%', `${-(totalCards - 1) * 100}%`],
+    [0, 1],
+    [0, -(totalSlides - 1) * 100],
   );
+
+  // useSpring으로 감속: 스크롤 한 틱당 이동량이 줄어들고 부드럽게 따라옴
+  const xSmooth = useSpring(xPercent, { stiffness: 60, damping: 20, mass: 1 });
+
+  // 숫자 → CSS 퍼센트 문자열
+  const x = useTransform(xSmooth, (v) => `${v}%`);
+
+  // 프로그레스 바 (spring 기반)
+  const progress = useTransform(xSmooth, [0, -(totalSlides - 1) * 100], [0, 1]);
 
   return (
     <section
       ref={sectionRef}
       className="relative"
-      style={{ height: `${totalCards * 100}vh` }}
+      style={{ height: `${totalSlides * 100}vh` }}
     >
       <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
         {/* Header */}
@@ -245,7 +251,7 @@ export default function PortfolioShowcase() {
           <div className="h-[2px] bg-white/[0.06] rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-gradient-to-r from-brand-purple to-brand-mint origin-left"
-              style={{ scaleX: scrollYProgress }}
+              style={{ scaleX: progress }}
             />
           </div>
           <div className="mt-4 text-center md:hidden">
