@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
-import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from '@/i18n/routing';
 import { ArrowRight } from 'lucide-react';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
@@ -137,15 +137,8 @@ export default function PortfolioShowcase() {
   const cardWidth = 85; // vw (md 기준)
   const maxOffset = -(totalSlides - 1) * cardWidth;
   const xRaw = useTransform(scrollYProgress, [0, 1], [0, maxOffset]);
-
-  // spring 감속: 한 틱당 이동량을 줄이고 부드럽게
-  const xSmooth = useSpring(xRaw, { stiffness: 50, damping: 25, mass: 1.5 });
-
-  // 숫자 → vw 단위 (컨테이너 너비가 아닌 뷰포트 기준)
-  const x = useTransform(xSmooth, (v) => `${v}vw`);
-
-  // 프로그레스 바
-  const progress = useTransform(xSmooth, [0, maxOffset], [0, 1]);
+  const x = useTransform(xRaw, (v) => `${v}vw`);
+  const progress = useTransform(xRaw, [0, maxOffset], [0, 1]);
 
   return (
     <section
