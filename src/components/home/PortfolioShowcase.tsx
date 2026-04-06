@@ -133,21 +133,18 @@ export default function PortfolioShowcase() {
     offset: ['start start', 'end end'],
   });
 
-  // 세로 스크롤 → 가로 이동 변환 (숫자값)
-  const xPercent = useTransform(
-    scrollYProgress,
-    [0, 1],
-    [0, -(totalSlides - 1) * 100],
-  );
+  // 세로 스크롤 → 가로 이동 (vw 단위, 화면 너비 기준)
+  const maxOffset = -(totalSlides - 1) * 100; // -1000 (vw)
+  const xRaw = useTransform(scrollYProgress, [0, 1], [0, maxOffset]);
 
-  // useSpring으로 감속: 스크롤 한 틱당 이동량이 줄어들고 부드럽게 따라옴
-  const xSmooth = useSpring(xPercent, { stiffness: 60, damping: 20, mass: 1 });
+  // spring 감속: 한 틱당 이동량을 줄이고 부드럽게
+  const xSmooth = useSpring(xRaw, { stiffness: 50, damping: 25, mass: 1.5 });
 
-  // 숫자 → CSS 퍼센트 문자열
-  const x = useTransform(xSmooth, (v) => `${v}%`);
+  // 숫자 → vw 단위 (컨테이너 너비가 아닌 뷰포트 기준)
+  const x = useTransform(xSmooth, (v) => `${v}vw`);
 
-  // 프로그레스 바 (spring 기반)
-  const progress = useTransform(xSmooth, [0, -(totalSlides - 1) * 100], [0, 1]);
+  // 프로그레스 바
+  const progress = useTransform(xSmooth, [0, maxOffset], [0, 1]);
 
   return (
     <section
