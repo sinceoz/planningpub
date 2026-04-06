@@ -82,7 +82,7 @@ function RotatingImage({ images, alt }: { images: string[]; alt: string }) {
 function AutoFitTitle({ title }: { title: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLHeadingElement>(null);
-  const [fontSize, setFontSize] = useState(20); // px, 기본 lg 크기
+  const [fontSize, setFontSize] = useState(28); // px
 
   useEffect(() => {
     const container = containerRef.current;
@@ -90,8 +90,8 @@ function AutoFitTitle({ title }: { title: string }) {
     if (!container || !text) return;
 
     // 최대 크기에서 시작해서 컨테이너에 맞을 때까지 줄임
-    const maxSize = 20;
-    const minSize = 11;
+    const maxSize = 28;
+    const minSize = 15;
     let size = maxSize;
 
     text.style.fontSize = `${size}px`;
@@ -171,7 +171,7 @@ export default function PortfolioShowcase() {
   });
 
   // 세로 스크롤 → 가로 이동 (vw 단위, 카드 너비 85vw 기준)
-  const cardWidth = 80; // vw (md 기준)
+  const cardWidth = 70; // vw
   const maxOffset = -(totalSlides - 1) * cardWidth;
   const xRaw = useTransform(scrollYProgress, [0, 1], [0, maxOffset]);
   const x = useTransform(xRaw, (v) => `${v}vw`);
@@ -220,7 +220,7 @@ export default function PortfolioShowcase() {
               return (
                 <div
                   key={item.id}
-                  className="shrink-0 w-[88vw] md:w-[80vw] px-3 md:px-4 flex items-center justify-center"
+                  className="shrink-0 w-[85vw] md:w-[70vw] px-2 flex items-center justify-center"
                 >
                   <div className="group w-full max-w-5xl h-full overflow-hidden rounded-xl relative bg-bg-surface">
                     <RotatingImage images={images} alt={title} />
@@ -230,9 +230,9 @@ export default function PortfolioShowcase() {
                       {item.year}
                     </span>
                     {/* Info overlay */}
-                    <div className="absolute bottom-4 right-4 max-w-[70%] md:max-w-[50%] bg-black/50 backdrop-blur-md rounded-lg px-5 py-4">
+                    <div className="absolute bottom-5 right-5 max-w-[75%] md:max-w-[55%] bg-black/50 backdrop-blur-md rounded-lg px-7 py-5">
                       <AutoFitTitle title={title} />
-                      <div className="mt-2 flex flex-col gap-0.5 text-xs text-white/70">
+                      <div className="mt-3 flex flex-col gap-1 text-sm text-white/70">
                         {(() => {
                           const org = locale === 'ko' ? item.organizer : item.organizerEn;
                           if (!org) return null;
@@ -258,7 +258,7 @@ export default function PortfolioShowcase() {
             })}
 
             {/* Final "View All" card */}
-            <div className="shrink-0 w-[88vw] md:w-[80vw] px-3 md:px-4 flex items-center justify-center">
+            <div className="shrink-0 w-[85vw] md:w-[70vw] px-2 flex items-center justify-center">
               <Link href="/portfolio" className="group block">
                 <div className="w-[280px] md:w-[360px] aspect-[16/10] rounded-2xl border border-border-default hover:border-brand-mint/50 transition-colors flex flex-col items-center justify-center gap-6 bg-bg-surface/50 hover:bg-bg-surface">
                   <div className="w-16 h-16 rounded-full border border-brand-mint/40 flex items-center justify-center group-hover:bg-brand-mint/10 transition-colors">
