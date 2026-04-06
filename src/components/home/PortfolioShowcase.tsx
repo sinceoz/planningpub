@@ -199,10 +199,12 @@ export default function PortfolioShowcase() {
     offset: ['start start', 'end end'],
   });
 
-  const cardWidth = 55; // vw — 정사각형 카드 크기 기준
-  const maxOffset = -(totalSlides - 1) * cardWidth;
+  // 정사각형 카드: 높이 62vh = 너비 62vh → vw 환산은 화면비에 따라 다름
+  // vh 단위로 이동해야 정사각형 카드 크기와 정확히 일치
+  const cardSize = 64; // vh (카드 62vh + gap 2vh)
+  const maxOffset = -(totalSlides - 1) * cardSize;
   const xRaw = useTransform(scrollYProgress, [0, 1], [0, maxOffset]);
-  const x = useTransform(xRaw, (v) => `${v}vw`);
+  const x = useTransform(xRaw, (v) => `${v}vh`);
   const progress = useTransform(xRaw, [0, maxOffset], [0, 1]);
 
   return (
@@ -210,7 +212,7 @@ export default function PortfolioShowcase() {
       <section
         ref={sectionRef}
         className="relative"
-        style={{ height: `${Math.round(totalSlides * cardWidth)}vh` }}
+        style={{ height: `${Math.round(totalSlides * cardSize)}vh` }}
       >
         <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
           {/* Header */}
