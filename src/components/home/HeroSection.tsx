@@ -66,15 +66,15 @@ export default function HeroSection() {
           loop
           playsInline
           preload="auto"
-          className="w-full h-full object-cover opacity-30"
+          className="w-full h-full object-cover opacity-70"
         >
           <source src="/videos/hero.mp4" type="video/mp4" />
         </video>
       </motion.div>
 
       {/* ── Gradient Overlays ── */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-dark)] via-[var(--color-bg-dark)]/95 to-[var(--color-bg-dark)]/60" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-bg-dark)]/80 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-bg-dark)] via-[var(--color-bg-dark)]/70 to-[var(--color-bg-dark)]/30" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-bg-dark)]/60 via-transparent to-transparent" />
 
       {/* ── Ambient Glow ── */}
       <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] rounded-full bg-brand-purple/10 blur-[160px] pointer-events-none" />
