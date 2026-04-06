@@ -1,11 +1,14 @@
 'use client';
 
-import { useRef, useMemo } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useTranslations, useLocale } from 'next-intl';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from '@/i18n/routing';
 import { ArrowRight } from 'lucide-react';
+import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { PORTFOLIO_DATA } from '@/lib/portfolio-data';
+import type { PortfolioItem } from '@/types';
 import SectionLabel from '@/components/ui/SectionLabel';
 
 const PLACEHOLDER_IMAGES = [
@@ -17,7 +20,6 @@ const PLACEHOLDER_IMAGES = [
   'https://images.unsplash.com/photo-1560439514-4e9645039924?w=1200&q=80',
 ];
 
-// Shuffle using a seeded random (changes per page load)
 function shuffle<T>(arr: T[]): T[] {
   const shuffled = [...arr];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -32,26 +34,47 @@ const CARD_COUNT = 10;
 export default function PortfolioShowcase() {
   const t = useTranslations('portfolioShowcase');
   const locale = useLocale();
-
-  // Shuffle featured items once per mount (re-randomizes on each page visit)
-  const showcaseItems = useMemo(() => {
-    const featured = PORTFOLIO_DATA.filter((item) => item.featured);
-    return shuffle(featured).slice(0, CARD_COUNT);
-  }, []);
-
   const sectionRef = useRef<HTMLElement>(null);
 
-  // The section height determines how long we "pin".
-  // Total cards + 1 (view-all) → scroll distance = (count) * 100vh
-  const totalCards = showcaseItems.length + 1; // +1 for view-all card
+  const [showcaseItems, setShowcaseItems] = useState<PortfolioItem[]>(() => {
+    // Initial: static data fallback (SSR-safe)
+    const featured = PORTFOLIO_DATA.filter((item) => item.featured);
+    return shuffle(featured).slice(0, CARD_COUNT);
+  });
+
+  // Try loading from Firestore for up-to-date featured items
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const q = query(collection(db, 'portfolios'), orderBy('order'));
+        const snapshot = await Promise.race([
+          getDocs(q),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000)),
+        ]);
+        if (!snapshot.empty) {
+          const allItems = snapshot.docs.map((d) => ({
+            ...d.data(),
+            id: d.id,
+          })) as PortfolioItem[];
+          const featured = allItems.filter((item) => item.featured);
+          if (featured.length > 0) {
+            setShowcaseItems(shuffle(featured).slice(0, CARD_COUNT));
+          }
+        }
+      } catch {
+        // Firebase not configured or timeout — keep static data
+      }
+    };
+    load();
+  }, []);
+
+  const totalCards = showcaseItems.length + 1;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end end'],
   });
 
-  // Map vertical scroll to horizontal translation
-  // We want to scroll from 0 to -(totalCards - 1) card widths
   const x = useTransform(
     scrollYProgress,
     [0, 1],
@@ -174,7 +197,6 @@ export default function PortfolioShowcase() {
               style={{ scaleX: scrollYProgress }}
             />
           </div>
-          {/* Mobile view all link */}
           <div className="mt-4 text-center md:hidden">
             <Link
               href="/portfolio"
