@@ -6,22 +6,6 @@ import { Link } from '@/i18n/routing';
 import { ArrowRight, ChevronDown } from 'lucide-react';
 import { useRef, useEffect, useState } from 'react';
 
-// Background grid: event/conference themed photos from Unsplash
-const BG_IMAGES = [
-  'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=60',
-  'https://images.unsplash.com/photo-1511578314322-379afb476865?w=600&q=60',
-  'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=600&q=60',
-  'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&q=60',
-  'https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=60',
-  'https://images.unsplash.com/photo-1560439514-4e9645039924?w=600&q=60',
-  'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=600&q=60',
-  'https://images.unsplash.com/photo-1515169067868-5387ec356754?w=600&q=60',
-  'https://images.unsplash.com/photo-1601933470096-0e34634ffcde?w=600&q=60',
-  'https://images.unsplash.com/photo-1464047736614-af63643285bf?w=600&q=60',
-  'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=600&q=60',
-  'https://images.unsplash.com/photo-1582192730841-2a682d7375f9?w=600&q=60',
-];
-
 function CountUp({ target, suffix = '' }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
@@ -58,38 +42,34 @@ export default function HeroSection() {
     target: sectionRef,
     offset: ['start start', 'end start'],
   });
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   return (
     <section
       ref={sectionRef}
       className="relative min-h-screen flex items-end overflow-hidden"
     >
-      {/* ── Background: Event Thumbnail Grid ── */}
+      {/* ── Background: Hero Video ── */}
       <motion.div
         className="absolute inset-0 -top-20"
-        style={{ y: bgY }}
+        style={{ y: bgY, scale: bgScale, opacity: bgOpacity }}
         aria-hidden="true"
       >
-        <div className="grid grid-cols-4 gap-1 w-full h-full">
-          {BG_IMAGES.map((src, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, scale: 1.05 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.8, delay: i * 0.07, ease: 'easeOut' }}
-              className="overflow-hidden"
-            >
-              <img
-                src={src}
-                alt=""
-                draggable={false}
-                className="w-full h-full object-cover opacity-[0.18] scale-105"
-              />
-            </motion.div>
-          ))}
-        </div>
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          className="w-full h-full object-cover opacity-30"
+        >
+          <source src="/videos/hero.mp4" type="video/mp4" />
+        </video>
       </motion.div>
 
       {/* ── Gradient Overlays ── */}
@@ -193,21 +173,23 @@ export default function HeroSection() {
           >
             <Link
               href="/contact"
-              className="group inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold rounded-lg transition-all
+              className="group inline-flex items-center gap-3 px-8 py-4 text-base font-semibold rounded-lg transition-all
                 bg-gradient-to-r from-brand-purple to-brand-mint text-white
-                hover:shadow-[0_8px_32px_-6px_var(--color-brand-mint-glow)] hover:-translate-y-0.5"
+                hover:shadow-[0_8px_32px_-6px_var(--color-brand-mint-glow)] hover:-translate-y-0.5
+                active:scale-[0.98]"
             >
               {t('cta')}
               <ArrowRight
-                size={15}
+                size={18}
                 className="group-hover:translate-x-1 transition-transform"
               />
             </Link>
             <Link
               href="/portfolio"
-              className="inline-flex items-center gap-2 px-7 py-3.5 text-sm font-semibold rounded-lg transition-all
+              className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold rounded-lg transition-all
                 border border-border-default text-text-muted
-                hover:border-border-hover hover:text-text-primary"
+                hover:border-border-hover hover:text-text-primary
+                active:scale-[0.98]"
             >
               {t('portfolioCta')}
             </Link>
@@ -222,30 +204,25 @@ export default function HeroSection() {
           className="mt-16 md:mt-24 pt-8 border-t border-white/[0.06]"
         >
           <div className="flex gap-10 md:gap-20 lg:gap-28">
-            <div>
-              <p className="text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-bold hero-gradient-text leading-none tabular-nums">
-                <CountUp target={45} suffix="+" />
-              </p>
-              <p className="text-[0.65rem] md:text-xs text-text-dim mt-2 tracking-[0.15em] uppercase">
-                {t('stat1Label')}
-              </p>
-            </div>
-            <div>
-              <p className="text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-bold hero-gradient-text leading-none">
-                <CountUp target={40} suffix="개국" />
-              </p>
-              <p className="text-[0.65rem] md:text-xs text-text-dim mt-2 tracking-[0.15em] uppercase">
-                {t('stat2Label')}
-              </p>
-            </div>
-            <div>
-              <p className="text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-bold hero-gradient-text leading-none tabular-nums">
-                <CountUp target={100} suffix="만+" />
-              </p>
-              <p className="text-[0.65rem] md:text-xs text-text-dim mt-2 tracking-[0.15em] uppercase">
-                {t('stat3Label')}
-              </p>
-            </div>
+            {[
+              { target: 47, suffix: '+', label: 'stat1Label' },
+              { target: 38, suffix: '개국', label: 'stat2Label' },
+              { target: 97, suffix: '만+', label: 'stat3Label' },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 2.1 + i * 0.12 }}
+              >
+                <p className="text-[2.2rem] md:text-[3rem] lg:text-[3.5rem] font-bold hero-gradient-text leading-none tabular-nums">
+                  <CountUp target={stat.target} suffix={stat.suffix} />
+                </p>
+                <p className="text-[0.65rem] md:text-xs text-text-dim mt-2 tracking-[0.15em] uppercase">
+                  {t(stat.label)}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       </motion.div>
