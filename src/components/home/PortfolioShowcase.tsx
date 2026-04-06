@@ -210,7 +210,7 @@ export default function PortfolioShowcase() {
       <section
         ref={sectionRef}
         className="relative"
-        style={{ height: `${Math.round(totalSlides * 100)}vh` }}
+        style={{ height: `${Math.round(totalSlides * cardWidth)}vh` }}
       >
         <div className="sticky top-0 h-screen overflow-hidden flex flex-col">
           {/* Header */}
