@@ -81,14 +81,33 @@ select option {
 }
 
 /* 글로벌 스타일 */
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--color-bg-dark);
   color: var(--color-text-primary);
   font-family: var(--font-body);
-  min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 한국어 헤딩 최적화 */
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+
+/* 버튼 피드백 */
+a[class*="px-"], button {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+a[class*="px-"]:active, button:active {
+  transform: scale(0.98);
 }
 
 /* 노이즈 텍스처 오버레이 */
@@ -189,6 +208,15 @@ body::before {
 }
 .gradient-border:hover::before {
   opacity: 1;
+}
+
+/* 스크롤바 숨기기 (horizontal scroll strips) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* 선택 영역 */

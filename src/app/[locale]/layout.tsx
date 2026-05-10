@@ -2,15 +2,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
-import { Noto_Sans_KR } from 'next/font/google';
 import ConditionalNavbar from '@/components/layout/ConditionalNavbar';
 import ConditionalFooter from '@/components/layout/ConditionalFooter';
-
-const notoSansKr = Noto_Sans_KR({
-  variable: '--font-noto-sans-kr',
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '700', '900'],
-});
 
 export default async function LocaleLayout({
   children,
@@ -82,7 +75,7 @@ export default async function LocaleLayout({
         />
       </head>
       <body
-        className={`${notoSansKr.variable} antialiased min-h-screen`}
+        className="antialiased min-h-screen"
         suppressHydrationWarning
       >
         <NextIntlClientProvider messages={messages}>

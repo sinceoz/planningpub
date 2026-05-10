@@ -20,11 +20,11 @@
     "body3": "\"We don't just run events. We PLATFORM them.\"",
     "cta": "프로젝트 문의",
     "portfolioCta": "포트폴리오 보기",
-    "stat1Value": "45+",
+    "stat1Value": "47+",
     "stat1Label": "Projects",
-    "stat2Value": "40개국",
+    "stat2Value": "38개국",
     "stat2Label": "Global Events",
-    "stat3Value": "100만+",
+    "stat3Value": "97만+",
     "stat3Label": "Participants"
   },
   "micePlatformer": {
@@ -408,7 +408,7 @@
     "label": "포트폴리오 쇼케이스",
     "title": "우리가 만든 무대들",
     "viewAll": "전체 포트폴리오 보기",
-    "viewAllSub": "45개 이상의 프로젝트"
+    "viewAllSub": "47개 이상의 프로젝트"
   },
   "why": {
     "label": "Why PlanningPub",

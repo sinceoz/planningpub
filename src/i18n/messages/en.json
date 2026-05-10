@@ -20,11 +20,11 @@
     "body3": "\"We don't just run events. We PLATFORM them.\"",
     "cta": "Start a Project",
     "portfolioCta": "View Portfolio",
-    "stat1Value": "45+",
+    "stat1Value": "47+",
     "stat1Label": "Projects",
-    "stat2Value": "40+",
+    "stat2Value": "38+",
     "stat2Label": "Countries",
-    "stat3Value": "1M+",
+    "stat3Value": "970K+",
     "stat3Label": "Participants"
   },
   "micePlatformer": {
@@ -408,7 +408,7 @@
     "label": "Portfolio Showcase",
     "title": "Stages We Built",
     "viewAll": "View All Portfolio",
-    "viewAllSub": "45+ Projects"
+    "viewAllSub": "47+ Projects"
   },
   "why": {
     "label": "Why PlanningPub",
