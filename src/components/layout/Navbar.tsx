@@ -10,7 +10,6 @@ const NAV_ITEMS = [
   { href: '/portfolio', key: 'portfolio' },
   { href: '/contact', key: 'contact' },
   { href: '/planninghub', key: 'planninghub' },
-  { href: '/puby', key: 'puby' },
 ] as const;
 
 export default function Navbar() {
@@ -39,6 +38,12 @@ export default function Navbar() {
               {t(item.key)}
             </Link>
           ))}
+          <a
+            href="/puby"
+            className="text-sm text-text-muted hover:text-text-primary transition-colors"
+          >
+            {t('puby')}
+          </a>
         </nav>
 
         {/* 우측 액션 */}

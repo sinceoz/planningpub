@@ -12,7 +12,6 @@ const NAV_ITEMS = [
   { href: '/portfolio', key: 'portfolio' },
   { href: '/contact', key: 'contact' },
   { href: '/planninghub', key: 'planninghub' },
-  { href: '/puby', key: 'puby' },
 ] as const;
 
 export default function MobileMenu() {
@@ -48,6 +47,13 @@ export default function MobileMenu() {
                   {t(item.key)}
                 </Link>
               ))}
+              <a
+                href="/puby"
+                onClick={() => setOpen(false)}
+                className="text-text-primary hover:text-brand-mint transition-colors text-lg"
+              >
+                {t('puby')}
+              </a>
               <div className="pt-4 border-t border-border-default">
                 <LanguageSwitcher />
               </div>
