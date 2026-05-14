@@ -1,14 +1,4 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "rewrites": [
-    {
-      "source": "/puby",
-      "destination": "https://puby-planningpub.web.app/puby/"
-    },
-    {
-      "source": "/puby/:path*",
-      "destination": "https://puby-planningpub.web.app/puby/:path*"
-    }
-  ]
+  "framework": "nextjs"
 }

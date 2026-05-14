@@ -38,12 +38,6 @@ export default function Navbar() {
               {t(item.key)}
             </Link>
           ))}
-          <a
-            href="/puby"
-            className="text-sm text-text-muted hover:text-text-primary transition-colors"
-          >
-            {t('puby')}
-          </a>
         </nav>
 
         {/* 우측 액션 */}

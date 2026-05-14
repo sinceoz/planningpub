@@ -47,13 +47,6 @@ export default function MobileMenu() {
                   {t(item.key)}
                 </Link>
               ))}
-              <a
-                href="/puby"
-                onClick={() => setOpen(false)}
-                className="text-text-primary hover:text-brand-mint transition-colors text-lg"
-              >
-                {t('puby')}
-              </a>
               <div className="pt-4 border-t border-border-default">
                 <LanguageSwitcher />
               </div>
