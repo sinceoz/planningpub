@@ -51,6 +51,18 @@ export const CREW_MEMBERS = [
   { name: '팀원 C', nameEn: 'Member C', role: '개발팀장', roleEn: 'Development Director' },
 ] as const;
 
+// SNS 채널
+export const SNS_CHANNELS = {
+  instagram: {
+    url: 'https://www.instagram.com/planning_pub/',
+    label: 'Instagram',
+  },
+  facebook: {
+    url: 'https://www.facebook.com/planningpub',
+    label: 'Facebook',
+  },
+} as const;
+
 // 예산 범위 옵션
 export const BUDGET_OPTIONS = [
   { value: '10m-50m', labelKo: '1,000만원 ~ 5,000만원', labelEn: '₩10M ~ ₩50M' },

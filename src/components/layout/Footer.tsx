@@ -2,7 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { COMPANY } from '@/lib/constants';
+import { Instagram, Facebook } from 'lucide-react';
+import { COMPANY, SNS_CHANNELS } from '@/lib/constants';
 
 
 export default function Footer() {
@@ -39,6 +40,31 @@ export default function Footer() {
             <Link href="/portfolio" className="text-sm text-text-muted hover:text-brand-mint transition-colors">Portfolio</Link>
             <Link href="/contact" className="text-sm text-text-muted hover:text-brand-mint transition-colors">Contact</Link>
             <Link href="/planninghub" className="text-sm text-text-muted hover:text-brand-mint transition-colors">PlanningHUB</Link>
+          </div>
+
+          {/* SNS 채널 */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-sm font-semibold text-text-primary mb-2">Follow Us</h3>
+            <div className="flex gap-4">
+              <a
+                href={SNS_CHANNELS.instagram.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="text-text-muted hover:text-brand-mint transition-colors"
+              >
+                <Instagram size={32} strokeWidth={1.5} />
+              </a>
+              <a
+                href={SNS_CHANNELS.facebook.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="text-text-muted hover:text-brand-mint transition-colors"
+              >
+                <Facebook size={32} strokeWidth={1.5} />
+              </a>
+            </div>
           </div>
 
         </div>
